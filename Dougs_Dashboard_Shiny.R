@@ -361,7 +361,7 @@ reload_elec_data <- function() {
   
   minute_elec_day <- dbGetQuery(pgconn,minquery) %>%
     as_tibble() %>%
-    mutate(timecut = cut(.$time, breaks = "20 min",right=FALSE)) %>%
+    mutate(timecut = cut(.$time, breaks = "5 min",right=FALSE)) %>%
     #filter(time < today() & time > ymd(20200715)) %>%
     #filter(time > startd) %>%
     group_by(timecut) %>%
@@ -1276,7 +1276,7 @@ group by traveltype_superclass,superclass_colourv,year")
       geom_col(data=minute_elec_day,aes(time,unaccum)) +
       facet_wrap(~day,scales="free_x") +
       theme(axis.text.x=element_text(angle = 30,vjust=1,hjust=1)) +
-      ylab("kWh over 20 min intervals") + 
+      ylab("kWh over 5 min intervals") + 
       xlab("time") +
       scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London"))
     
