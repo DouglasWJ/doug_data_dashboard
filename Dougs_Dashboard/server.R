@@ -150,7 +150,7 @@ select hillname,classification,metres,feet,drop,geom,min(climbed) as first_asc,c
 from
 (select hillnumber,classification,hillname,metres,feet,drop,geom from hills_v17.hills where hillnumber IN (select hillnumber from hills_v17.classlink where classref = 'M')) a
 full outer JOIN
-(select *,'green' as color from hills_v17.userlog_mv_40m where hillnumber IN (select hillnumber from hills_v17.classlink where classref = 'M')) b 
+(select *,'blue' as color from hills_v17.userlog_mv_40m where hillnumber IN (select hillnumber from hills_v17.classlink where classref = 'M')) b 
 using (hillnumber)
 group by hillname,classification,metres,feet,drop,geom,color) subq
                      where num_asc > 0")
@@ -236,7 +236,7 @@ select hillname,classification,metres,feet,drop,geom,min(climbed) as first_asc,c
 from
 (select hillnumber,classification,hillname,metres,feet,drop,geom from hills_v17.hills where hillnumber IN (select hillnumber from hills_v17.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
 full outer JOIN
-(select *,'green' as color from hills_v17.userlog_mv_40m where hillnumber IN (select hillnumber from hills_v17.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
+(select *,'blue' as color from hills_v17.userlog_mv_40m where hillnumber IN (select hillnumber from hills_v17.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
 using (hillnumber)
 group by hillname,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
                                     
@@ -246,7 +246,7 @@ group by hillname,classification,metres,feet,drop,geom,color) subq",ascq,altq,dr
                                     popupsv <- paste0( "<b>Hill Name: </b>"
                                                        , map_dta$hillname
                                                        ,"<br>"
-                                                       ,"<b>Classification:  </b>"
+                                                       ,"<b>Classification(s):  </b>"
                                                        ,map_dta$classification
                                                        ,"<br>"
                                                        ,"<b>Altitude (m): </b>"

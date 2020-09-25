@@ -133,7 +133,7 @@ navbarPage(windowTitle = "Dougs Data",
                                     tabPanel(title="Annual",plotlyOutput("annualmap_emi",height="100%"))
                                   ))
                     )),
-           tabPanel("Hill Climbing",
+           tabPanel("Hill Walking",
                     sidebarLayout(
              sidebarPanel(
                width=2,
@@ -216,7 +216,7 @@ navbarPage(windowTitle = "Dougs Data",
                            max=1500,
                            step=100,
                            value=c(0,1500)),
-               checkboxGroupInput("climbed","Climbed:",
+               checkboxGroupInput("climbed","Ascent Complete:",
                                   choices=c("Yes" = "yes",
                                             "No" = "no"
                                   ),
