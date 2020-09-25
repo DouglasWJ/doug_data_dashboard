@@ -637,8 +637,16 @@ ui <- navbarPage("Dougs Data",
                                           tabPanel(title="Monthly",plotlyOutput("monthmap_emi",height="100%")),
                                           tabPanel(title="Annual",plotlyOutput("annualmap_emi",height="100%"))
                                         ))
-                          ))
-)
+                          )),
+                 tabPanel("Hill Climbing",sidebarLayout(
+                   sidebarPanel(
+                     width=2),
+                   mainPanel(width=10,
+                             leafletOutput("myhillmap",height=400),)
+                   )
+                 )
+                          )
+#)
 
 
 server <- function(input, output, session) {
