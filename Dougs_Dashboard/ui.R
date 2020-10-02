@@ -10,7 +10,7 @@ navbarPage(windowTitle = "Dougs Data",
                         checkboxGroupInput("lfilter", "Traveltype Filter",
                                            choices = c(
                                              "Walk" = "Walk",
-                                             "Electric Skateboard" = "Electric_Skateboard",
+                                             "Electric Rideable" = "Electric_Skateboard",
                                              "Cycling" = "Cycling",
                                              "Electric Car" = "Electric_Car",
                                              "Car" = "Car",
