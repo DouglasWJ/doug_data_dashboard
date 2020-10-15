@@ -108,21 +108,45 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                               
                               map_dta <- st_read(dsn=pgconn,query=query)
                               
-                              popupsv <- paste0( "<b>Traveltype: </b>"
-                                                 , map_dta$traveltype
-                                                 ,"<br>"
-                                                 ,"<b>Start Time (UTC): </b>"
-                                                 ,map_dta$start_time_utc
-                                                 ,"<br>"
-                                                 ,"<b>Time Taken: </b>"
-                                                 ,map_dta$time_taken
-                                                 ,"<br>"
-                                                 ,"<b>Length (km): </b>"
-                                                 ,round(map_dta$length2d_km,2)
-                                                 ,"<br>"
-                                                 ,"<b>Emissions (kg co2e): </b>"
-                                                 ,round(map_dta$kg_all_co2e,2)
-                              )
+                              # popupsv <- paste0( "<b>Traveltype: </b>"
+                              #                    , map_dta$traveltype
+                              #                    ,"<br>"
+                              #                    ,"<b>Start Time (UTC): </b>"
+                              #                    ,map_dta$start_time_utc
+                              #                    ,"<br>"
+                              #                    ,"<b>Time Taken: </b>"
+                              #                    ,map_dta$time_taken
+                              #                    ,"<br>"
+                              #                    ,"<b>Length (km): </b>"
+                              #                    ,round(map_dta$length2d_km,2)
+                              #                    ,"<br>"
+                              #                    ,"<b>Emissions (kg co2e): </b>"
+                              #                    ,round(map_dta$kg_all_co2e,2)
+                              # )
+                              
+                              popupsv <- paste0("<table>",
+                                                "<tr>",
+                                                "<td>Traveltype: </td>",
+                                                "<td>",map_dta$traveltype,"</td>",
+                                                "</tr>",
+                                                "<tr>",
+                                                "<td>Start Time (UTC): </td>",
+                                                "<td>",map_dta$start_time_utc,"</td>",
+                                                "</tr>",
+                                                "<tr>",
+                                                "<td>Time Taken: </td>",
+                                                "<td>",map_dta$time_taken,"</td>",
+                                                "</tr>",
+                                                "<tr>",
+                                                "<td>Length (km): </td>",
+                                                "<td>",round(map_dta$length2d_km,2),"</td>",
+                                                "</tr>",
+                                                "<tr>",
+                                                "<td>Emissions (kg co2e): </td>",
+                                                "<td>",round(map_dta$kg_all_co2e,2),"</td>",
+                                                "</tr>",
+                                                "</table>"
+                                                )
                               
                               #print(map_dta)
                               leafletProxy("mymap") %>%
@@ -157,27 +181,38 @@ group by hillname,classification,metres,feet,drop,geom,color) subq
       
       map_dta <- st_read(dsn=pgconn,query=query)
       
-      popupsv <- paste0( "<b>Hill Name: </b>"
-                         , map_dta$hillname
-                         ,"<br>"
-                         ,"<b>Classification:  </b>"
-                         ,map_dta$classification
-                         ,"<br>"
-                         ,"<b>Altitude (m): </b>"
-                         ,map_dta$metres
-                         ,"<br>"
-                         ,"<b>Altitude (feet): </b>"
-                         ,map_dta$feet
-                         ,"<br>"
-                         ,"<b>Drop (m): </b>"
-                         ,map_dta$drop
-                         ,"<br>"
-                         ,"<b>First Ascent: </b>"
-                         ,map_dta$first_asc
-                         ,"<br>"
-                         ,"<b>Number of Ascents: </b>"
-                         ,map_dta$num_asc
-                         )
+      popupsv <- popupsv <- paste0("<h5>","<b>",map_dta$hillname,"</b>","</h5>",
+                                   "<table>",
+                                   "<tr>",
+                                   "<td>Name:</td>",
+                                   "<td>",map_dta$hillname,"</td>",
+                                   "</tr>",
+                                   "<tr>",
+                                   "<td>Classification:</td>",
+                                   "<td>",map_dta$classification,"</td>",
+                                   "</tr>",
+                                   "<tr>",
+                                   "<td>Height (m):</td>",
+                                   "<td>",map_dta$metres,"</td>",
+                                   "</tr>",
+                                   "<tr>",
+                                   "<td>Height (ft):</td>",
+                                   "<td>",map_dta$feet,"</td>",
+                                   "</tr>",
+                                   "<tr>",
+                                   "<td>Drop (m):</td>",
+                                   "<td>",map_dta$drop,"</td>",
+                                   "</tr>",
+                                   "<tr>",
+                                   "<td>First Ascent: </td>",
+                                   "<td>",map_dta$first_asc,"</td>",
+                                   "</tr>",
+                                   "<tr>",
+                                   "<td>Num Ascents: </td>",
+                                   "<td>",map_dta$num_asc,"</td>",
+                                   "</tr>",
+                                   "</table>"
+      )
       
       
       #travel_lines <- reload_map_data()
@@ -243,26 +278,59 @@ group by hillname,classification,metres,feet,drop,geom,color) subq",ascq,altq,dr
                                     
                                     map_dta <- st_read(dsn=pgconn,query=query)
                                     
-                                    popupsv <- paste0( "<b>Hill Name: </b>"
-                                                       , map_dta$hillname
-                                                       ,"<br>"
-                                                       ,"<b>Classification(s):  </b>"
-                                                       ,map_dta$classification
-                                                       ,"<br>"
-                                                       ,"<b>Altitude (m): </b>"
-                                                       ,map_dta$metres
-                                                       ,"<br>"
-                                                       ,"<b>Altitude (feet): </b>"
-                                                       ,map_dta$feet
-                                                       ,"<br>"
-                                                       ,"<b>Drop (m): </b>"
-                                                       ,map_dta$drop
-                                                       ,"<br>"
-                                                       ,"<b>First Ascent: </b>"
-                                                       ,map_dta$first_asc
-                                                       ,"<br>"
-                                                       ,"<b>Number of Ascents: </b>"
-                                                       ,map_dta$num_asc
+                                    # popupsv <- paste0( "<b>Hill Name: </b>"
+                                    #                    , map_dta$hillname
+                                    #                    ,"<br>"
+                                    #                    ,"<b>Classification(s):  </b>"
+                                    #                    ,map_dta$classification
+                                    #                    ,"<br>"
+                                    #                    ,"<b>Altitude (m): </b>"
+                                    #                    ,map_dta$metres
+                                    #                    ,"<br>"
+                                    #                    ,"<b>Altitude (feet): </b>"
+                                    #                    ,map_dta$feet
+                                    #                    ,"<br>"
+                                    #                    ,"<b>Drop (m): </b>"
+                                    #                    ,map_dta$drop
+                                    #                    ,"<br>"
+                                    #                    ,"<b>First Ascent: </b>"
+                                    #                    ,map_dta$first_asc
+                                    #                    ,"<br>"
+                                    #                    ,"<b>Number of Ascents: </b>"
+                                    #                    ,map_dta$num_asc
+                                    # )
+                                    
+                                    popupsv <- paste0("<h5>","<b>",map_dta$hillname,"</b>","</h5>",
+                                                      "<table>",
+                                                      "<tr>",
+                                                      "<td>Name:</td>",
+                                                      "<td>",map_dta$hillname,"</td>",
+                                                      "</tr>",
+                                                      "<tr>",
+                                                      "<td>Classification:</td>",
+                                                      "<td>",map_dta$classification,"</td>",
+                                                      "</tr>",
+                                                      "<tr>",
+                                                      "<td>Height (m):</td>",
+                                                      "<td>",map_dta$metres,"</td>",
+                                                      "</tr>",
+                                                      "<tr>",
+                                                      "<td>Height (ft):</td>",
+                                                      "<td>",map_dta$feet,"</td>",
+                                                      "</tr>",
+                                                      "<tr>",
+                                                      "<td>Drop (m):</td>",
+                                                      "<td>",map_dta$drop,"</td>",
+                                                      "</tr>",
+                                                      "<tr>",
+                                                      "<td>First Ascent: </td>",
+                                                      "<td>",map_dta$first_asc,"</td>",
+                                                      "</tr>",
+                                                      "<tr>",
+                                                      "<td>Num Ascents: </td>",
+                                                      "<td>",map_dta$num_asc,"</td>",
+                                                      "</tr>",
+                                                      "</table>"
                                     )
                                     
                                     #print(map_dta)
@@ -512,20 +580,28 @@ group by traveltype_superclass,superclass_colourv,year")
       
       map_dta <- st_read(dsn=pgconn,query=query)
       
-      popupsv <- paste0( "<b>Traveltype: </b>"
-                         , map_dta$traveltype
-                         ,"<br>"
-                         ,"<b>Start Time (UTC): </b>"
-                         ,map_dta$start_time_utc
-                         ,"<br>"
-                         ,"<b>Time Taken: </b>"
-                         ,map_dta$time_taken
-                         ,"<br>"
-                         ,"<b>Length (km): </b>"
-                         ,round(map_dta$length2d_km,2)
-                         ,"<br>"
-                         ,"<b>Emissions (kg co2e): </b>"
-                         ,round(map_dta$kg_all_co2e,2)
+      popupsv <- paste0( "<table>",
+                         "<tr>",
+                         "<td>Traveltype: </td>",
+                         "<td>",map_dta$traveltype,"</td>",
+                         "</tr>",
+                         "<tr>",
+                         "<td>Start Time (UTC): </td>",
+                         "<td>",map_dta$start_time_utc,"</td>",
+                         "</tr>",
+                         "<tr>",
+                         "<td>Time Taken: </td>",
+                         "<td>",map_dta$time_taken,"</td>",
+                         "</tr>",
+                         "<tr>",
+                         "<td>Length (km): </td>",
+                         "<td>",round(map_dta$length2d_km,2),"</td>",
+                         "</tr>",
+                         "<tr>",
+                         "<td>Emissions (kg co2e): </td>",
+                         "<td>",round(map_dta$kg_all_co2e,2),"</td>",
+                         "</tr>",
+                         "</table>"
       )
       
       #travel_lines <- reload_map_data()
