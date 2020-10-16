@@ -2,7 +2,7 @@
 
 
 navbarPage(windowTitle = "Dougs Data",
-           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;}"),
+           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} "),
            tabPanel("Travel",
                     sidebarLayout(
                       sidebarPanel(
@@ -127,7 +127,7 @@ navbarPage(windowTitle = "Dougs Data",
                                                           "elec_emissions")
                         )
                         #,actionButton("updata_emi","Refresh Data Source")
-                      ),mainPanel(width=10,
+                      ),mainPanel(width=10,id = "emissions_grp",
                                   tabsetPanel(
                                     tabPanel(title="Weekly",plotlyOutput("weekmap_emi",height="100%")),
                                     tabPanel(title="Monthly",plotlyOutput("monthmap_emi",height="100%")),
