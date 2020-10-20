@@ -172,9 +172,9 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
       query <- str_c("select hillname,classification,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
 select hillname,classification,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
 from
-(select hillnumber,classification,hillname,metres,feet,drop,geom from hills_v17.hills where hillnumber IN (select hillnumber from hills_v17.classlink where classref = 'M')) a
+(select hillnumber,classification,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) a
 full outer JOIN
-(select *,'blue' as color from hills_v17.userlog_mv_40m where hillnumber IN (select hillnumber from hills_v17.classlink where classref = 'M')) b 
+(select *,'blue' as color from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) b 
 using (hillnumber)
 group by hillname,classification,metres,feet,drop,geom,color) subq
                      where num_asc > 0")
@@ -269,9 +269,9 @@ group by hillname,classification,metres,feet,drop,geom,color) subq
                                     "select * from (
 select hillname,classification,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
 from
-(select hillnumber,classification,hillname,metres,feet,drop,geom from hills_v17.hills where hillnumber IN (select hillnumber from hills_v17.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
+(select hillnumber,classification,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
 full outer JOIN
-(select *,'blue' as color from hills_v17.userlog_mv_40m where hillnumber IN (select hillnumber from hills_v17.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
+(select *,'blue' as color from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
 using (hillnumber)
 group by hillname,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
                                     

@@ -497,7 +497,7 @@ query <- str_c("select
                (max(climbed)::date + '30 days'::interval)::date as e,
                min(extract(year from climbed)) as s_yr,
                max(extract(year from climbed)) as e_yr
-               from hills_v17.userlog_mv_40m")
+               from dobih.userlog")
 
 choice_month_hilq <- dbGetQuery(pgconn,query)
 
