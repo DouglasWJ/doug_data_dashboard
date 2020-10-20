@@ -169,14 +169,14 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
       #daterange <- get_daterange()
       #map_dta <- filter(travel_lines,traveltype %in% filtervs & start_time_utc >= daterange[1] & end_time_utc <= daterange[2])
       
-      query <- str_c("select hillname,classification,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
-select hillname,classification,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
+      query <- str_c("select hillname,classification,feature,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
+select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
 from
-(select hillnumber,classification,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) a
+(select hillnumber,feature,classification,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) a
 full outer JOIN
 (select *,'blue' as color from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) b 
 using (hillnumber)
-group by hillname,classification,metres,feet,drop,geom,color) subq
+group by hillname,feature,classification,metres,feet,drop,geom,color) subq
                      where num_asc > 0")
       
       map_dta <- st_read(dsn=pgconn,query=query)
@@ -198,6 +198,10 @@ group by hillname,classification,metres,feet,drop,geom,color) subq
                                    "<tr>",
                                    "<td>Height (ft):</td>",
                                    "<td>",map_dta$feet,"</td>",
+                                   "</tr>",
+                                   "<tr>",
+                                   "<td>Feature:</td>",
+                                   "<td>",map_dta$feature,"</td>",
                                    "</tr>",
                                    "<tr>",
                                    "<td>Drop (m):</td>",
@@ -267,13 +271,13 @@ group by hillname,classification,metres,feet,drop,geom,color) subq
                                     
                                     query <- str_c(
                                     "select * from (
-select hillname,classification,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
+select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
 from
-(select hillnumber,classification,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
+(select hillnumber,classification,feature,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
 full outer JOIN
 (select *,'blue' as color from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
 using (hillnumber)
-group by hillname,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
+group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
                                     
                                     
                                     map_dta <- st_read(dsn=pgconn,query=query)
@@ -317,6 +321,10 @@ group by hillname,classification,metres,feet,drop,geom,color) subq",ascq,altq,dr
                                                       "<tr>",
                                                       "<td>Height (ft):</td>",
                                                       "<td>",map_dta$feet,"</td>",
+                                                      "</tr>",
+                                                      "<tr>",
+                                                      "<td>Feature:</td>",
+                                                      "<td>",map_dta$feature,"</td>",
                                                       "</tr>",
                                                       "<tr>",
                                                       "<td>Drop (m):</td>",
