@@ -8,7 +8,7 @@ options(bitmapType='cairo')
 function(input, output, session) {
   
   output$tbl <- renderTable(spacing="xs",striped=TRUE,bordered=TRUE,expr={
-    dbGetQuery(pgconn,"select classname as class,total::integer,cnt::integer as climb ,perc 
+    dbGetQuery(pgconn,"select REPLACE(REPLACE(classname,' hill',''),' (all)','') as class,total::integer,cnt::integer as climb ,perc 
                from 
                dobih.climbed_summary 
                where 
