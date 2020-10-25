@@ -24,7 +24,7 @@ pgconn <-
     port = 5433,
     user = "doug"
   )
-dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage, public"))
+dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage,dobih, public"))
 
 
 #pre-processing:

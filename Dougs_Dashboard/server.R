@@ -7,6 +7,15 @@ options(bitmapType='cairo')
 
 function(input, output, session) {
   
+  output$tbl <- renderTable(spacing="xs",striped=TRUE,bordered=TRUE,expr={
+    dbGetQuery(pgconn,"select classname as class,total::integer,cnt::integer as climb ,perc 
+               from 
+               dobih.climbed_summary 
+               where 
+               classname in ('Tump (all)','Munro','Corbett','Graham','Highland Five','Donald Dewey','400-499m hill','300-399m hill','200-299m hill','100-199m hill','0-99m hill')
+               ORDER BY cnt DESC"
+    )})
+  
   get_traveltypefilter <- function() {
     return(input$lfilter)
   }
@@ -181,6 +190,17 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq
       
       map_dta <- st_read(dsn=pgconn,query=query)
       
+      query2 <- str_c("select hillname,classification,feature,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
+select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
+from
+(select hillnumber,feature,classification,hillname,metres,feet,drop from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) a
+full outer JOIN
+(select *,'blue' as color from dobih.userlog_with_geom_mv where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) b 
+using (hillnumber)
+group by hillname,feature,classification,metres,feet,drop,geom,color) subq
+                     where num_asc > 0")
+      map_dta2 <- st_zm(st_read(dsn=pgconn,query=query2))
+      
       popupsv <- popupsv <- paste0("<h5>","<b>",map_dta$hillname,"</b>","</h5>",
                                    "<table>",
                                    "<tr>",
@@ -225,6 +245,15 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq
       map <- leaflet() %>%
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
+        addPolylines(data = map_dta2,
+                     color = "brown",
+                     group = "Tracks",
+                     weight = 2,
+                     stroke = TRUE,
+                     fill = FALSE#,
+                     #bringToFront = TRUE,
+                     #sendToBack = FALSE
+        ) %>%
         addCircles(
           data = map_dta,
           color =  ~ color,
@@ -234,7 +263,7 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq
         ) %>%
         addLayersControl(
           baseGroups = c("OSM (default)", "Imagery (ESRI)"),
-          overlayGroups = c("Hills"),
+          overlayGroups = c("Hills","Tracks"),
           options = layersControlOptions(collapsed = FALSE)
         )
       
@@ -281,6 +310,19 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq
                                     
                                     
                                     map_dta <- st_read(dsn=pgconn,query=query)
+                                    
+                                    query2 <- str_c(
+                                      "select * from (
+select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
+from
+(select hillnumber,classification,feature,hillname,metres,feet,drop from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
+INNER JOIN
+(select *,'blue' as color from dobih.userlog_with_geom_mv where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
+using (hillnumber)
+group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
+                                    
+                                    map_dta2 <- st_zm(st_read(dsn=pgconn,query=query2))
+                                    
                                     
                                     # popupsv <- paste0( "<b>Hill Name: </b>"
                                     #                    , map_dta$hillname
@@ -344,7 +386,15 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq
                                     #print(map_dta)
                                     leafletProxy("myhillmap") %>%
                                       clearShapes() %>%
-                                      #removeShape("travel_lines_id") %>%
+                                      addPolylines(data = map_dta2,
+                                                   color = "brown",
+                                                   group = "Tracks",
+                                                   weight = 2,
+                                                   stroke = TRUE,
+                                                   fill = FALSE#,
+                                                   #bringToFront = TRUE,
+                                                   #sendToBack = FALSE
+                                      ) %>%
                                       addCircles(
                                         data = map_dta,
                                         color =  ~color,
@@ -352,6 +402,7 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq
                                         group = "Hills"
                                         #layerId = "travel_lines_id"
                                       )
+                                      
                                   })
   
   output$weekmap <- renderPlotly(

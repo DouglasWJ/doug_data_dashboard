@@ -223,7 +223,8 @@ navbarPage(windowTitle = "Dougs Data",
                                   ),
                                   selected = c("yes")
                ),
-              actionButton("rerunhill","Apply Filter/Redraw Map")
+              actionButton("rerunhill","Apply Filter/Redraw Map"),
+              tableOutput('tbl')
 ),
              mainPanel(width=10,
                        leafletOutput("myhillmap"))
