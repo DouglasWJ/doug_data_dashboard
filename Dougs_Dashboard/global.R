@@ -20,7 +20,7 @@ pgconn <-
   dbConnect(
     RPostgres::Postgres(),
     dbname = "spatial_db",
-    host = "10.10.1.200",
+    host = "10.10.1.50",
     port = 5433,
     user = "doug"
   )
