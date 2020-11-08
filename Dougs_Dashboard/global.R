@@ -349,9 +349,10 @@ dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage,dob
 reload_elec_data <- function() {
   
   minquery <- str_c("select time,utility,value from utilityusage.utilityrecordings_smartthings where 
-                    utility = 'energy'
-                    AND time >= (CURRENT_DATE - 5)")
+                    utility = 'energy' AND
+                    time >= (CURRENT_DATE - 2)")
   #startd <- today() - 5
+  #
   
   minute_elec_day <- dbGetQuery(pgconn,minquery) %>%
     as_tibble() %>%
@@ -361,7 +362,7 @@ reload_elec_data <- function() {
     group_by(timecut) %>%
     summarise(value=max(value)) %>%
     #rename(minute = `lubridate::minute(time)`) %>%
-    mutate(unaccum = across(value, ~ .-c(0,lag(.)[-1]))) %>%
+    mutate(unaccum = across(.cols=c(value), ~ .-c(0,lag(.)[-1]))) %>%
     mutate(unaccum = .$unaccum$value) %>%
     mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Europe/London") - 2.5*60) %>%
     mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
@@ -371,6 +372,36 @@ reload_elec_data <- function() {
   return(minute_elec_day)
   
 }
+
+reload_gas_data <- function() {
+  
+  minquery <- str_c("select time,utility,value from utilityusage.utilityrecordings_smartthings where 
+                    time >= (CURRENT_DATE - 2)")
+  #startd <- today() - 5
+  #utility = 'gasMeter' AND
+  
+  minute_gas_day <- dbGetQuery(pgconn,minquery) %>%
+    as_tibble() %>%
+    mutate(timecut = cut(.$time, breaks = "30 min",right=FALSE)) %>%
+    mutate(value2 = if_else(utility == 'gasMeter',value,0)) %>%
+    #filter(time < today() & time > ymd(20200715)) %>%
+    #filter(time > startd) %>%
+    group_by(timecut) %>%
+    summarise(value=max(value2)) %>%
+    #rename(minute = `lubridate::minute(time)`) %>%
+    mutate(unaccum = across(.cols=c(value), ~ .-c(0,lag(.)[-1]))) %>%
+    mutate(unaccum = .$unaccum$value) %>%
+    mutate(unaccum = if_else(value == unaccum,0,unaccum)) %>%
+    mutate(unaccum = if_else(unaccum <= 0,0,unaccum)) %>%
+    mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Europe/London") - 15*60) %>%
+    mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
+    #filter(time >= dayfilt & time <= dayfilt+1) %>%
+    slice(-1) #remove the first value
+  
+  return(minute_gas_day)
+  
+}
+
 # reload_lines_daily <- function() {
 #   
 #   query <- "select 

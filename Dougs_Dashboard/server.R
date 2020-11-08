@@ -895,16 +895,32 @@ group by traveltype_superclass,superclass_colourv,year")
       pweek_uti <- ggplotly(plot_week_uti)
     })
   
-  output$daily_week_uti <- renderPlotly(
+  output$daily_week_elec <- renderPlotly(
     {
       
       minute_elec_day <- reload_elec_data()
       
       plot5min <- ggplot() + 
-        geom_col(data=minute_elec_day,aes(time,unaccum)) +
+        geom_col(data=minute_elec_day,aes(x=time,y=unaccum)) +
         facet_wrap(~day,scales="free_x") +
         theme(axis.text.x=element_text(angle = 30,vjust=1,hjust=1)) +
         ylab("kWh over 5 min intervals") + 
+        xlab("time") +
+        scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London"))
+      
+      plot5minplotly <- ggplotly(plot5min)
+    })
+  
+  output$daily_week_gas <- renderPlotly(
+    {
+      
+      minute_gas_day <- reload_gas_data()
+      
+      plot5min <- ggplot() + 
+        geom_col(data=minute_gas_day,aes(x=time,y=unaccum)) +
+        facet_wrap(~day,scales="free_x") +
+        theme(axis.text.x=element_text(angle = 30,vjust=1,hjust=1)) +
+        ylab("kWh over 30 min intervals") + 
         xlab("time") +
         scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London"))
       
