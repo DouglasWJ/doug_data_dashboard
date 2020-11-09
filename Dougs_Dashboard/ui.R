@@ -98,7 +98,7 @@ navbarPage(windowTitle = "Dougs Data",
                                     tabPanel(title="Weekly",plotlyOutput("weekmap_uti",height=400)),
                                     tabPanel(title="Monthly",plotlyOutput("monthmap_uti",height=400)),
                                     tabPanel(title="Annual",plotlyOutput("annualmap_uti",height=400))
-                                  ),h4("Utility usage over the last 6 days:"),
+                                  ),h4("Utility usage over the last 3 days:"),
                                   plotlyOutput("daily_week_elec",height=200),
                                   plotlyOutput("daily_week_gas",height=200)
                       ))),

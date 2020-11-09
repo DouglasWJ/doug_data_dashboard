@@ -366,6 +366,7 @@ reload_elec_data <- function() {
     mutate(unaccum = .$unaccum$value) %>%
     mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Europe/London") - 2.5*60) %>%
     mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
+    mutate(colourv = '#00999d') %>%
     #filter(time >= dayfilt & time <= dayfilt+1) %>%
     slice(-1) #remove the first value
   
@@ -395,6 +396,7 @@ reload_gas_data <- function() {
     mutate(unaccum = if_else(unaccum <= 0,0,unaccum)) %>%
     mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Europe/London") - 15*60) %>%
     mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
+    mutate(colourv = '#880f07') %>%
     #filter(time >= dayfilt & time <= dayfilt+1) %>%
     slice(-1) #remove the first value
   

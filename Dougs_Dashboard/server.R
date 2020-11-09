@@ -879,6 +879,8 @@ group by traveltype_superclass,superclass_colourv,year")
                    order by isoyear,isoweek ASC")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
+        mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
+        #mutate(colourv = if_else(name == 'elec_emissions','#00999d','#880f07')) %>%
         mutate(name = factor(name))
       
       plot_week_uti <- ggplot() +
@@ -890,7 +892,12 @@ group by traveltype_superclass,superclass_colourv,year")
         theme(axis.text.x = element_blank(),
               axis.ticks.x = element_blank()) +
         facet_wrap( ~ isoyear) +
-        ylab(emiuseuti)
+        ylab(emiuseuti) +
+        scale_fill_manual(
+          values=dat4plot$colourv,
+          breaks=dat4plot$name,
+          labels=dat4plot$name
+        )
       
       pweek_uti <- ggplotly(plot_week_uti)
     })
@@ -901,12 +908,13 @@ group by traveltype_superclass,superclass_colourv,year")
       minute_elec_day <- reload_elec_data()
       
       plot5min <- ggplot() + 
-        geom_col(data=minute_elec_day,aes(x=time,y=unaccum)) +
+        geom_col(data=minute_elec_day,aes(x=time,y=unaccum),fill='#00999d') +
         facet_wrap(~day,scales="free_x") +
-        theme(axis.text.x=element_text(angle = 30,vjust=1,hjust=1)) +
-        ylab("kWh over 5 min intervals") + 
+        theme(axis.text.x=element_text(angle = 30,vjust=3,hjust=1),axis.title.y=element_blank(),axis.title.x=element_blank()) +
+        #ylab("kWh over 5 min intervals") + 
         xlab("time") +
-        scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London"))
+        scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London")) +
+        scale_y_continuous(labels = scales::number_format(accuracy=0.1)) 
       
       plot5minplotly <- ggplotly(plot5min)
     })
@@ -917,12 +925,13 @@ group by traveltype_superclass,superclass_colourv,year")
       minute_gas_day <- reload_gas_data()
       
       plot5min <- ggplot() + 
-        geom_col(data=minute_gas_day,aes(x=time,y=unaccum)) +
+        geom_col(data=minute_gas_day,aes(x=time,y=unaccum),fill='#880f07') +
         facet_wrap(~day,scales="free_x") +
-        theme(axis.text.x=element_text(angle = 30,vjust=1,hjust=1)) +
-        ylab("kWh over 30 min intervals") + 
+        theme(axis.text.x=element_text(angle = 30,vjust=3,hjust=1),axis.title.y=element_blank(),axis.title.x=element_blank()) +
+        #ylab("kWh over 30 min intervals") + 
         xlab("time") +
-        scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London"))
+        scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London")) +
+        scale_y_continuous(labels = scales::number_format(accuracy=0.1))
       
       plot5minplotly <- ggplotly(plot5min)
     })
