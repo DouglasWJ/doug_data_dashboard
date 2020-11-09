@@ -721,6 +721,7 @@ group by traveltype_superclass,superclass_colourv,year")
                    order by year ASC")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
+        mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
         mutate(name = factor(name))
       
       # utilities_annual <- elec_emissions_annual %>%
@@ -751,7 +752,12 @@ group by traveltype_superclass,superclass_colourv,year")
         #scale_fill_manual(values = c("#b53737","#7ef9ff"))
         scale_x_continuous(
           breaks = seq(min_yr_uti,max_yr_uti),
-          labels= levels(factor(seq(min_yr_uti,max_yr_uti))))
+          labels= levels(factor(seq(min_yr_uti,max_yr_uti)))) + 
+        scale_fill_manual(
+          values=dat4plot$colourv
+          #breaks=dat4plot$name,
+          #labels=dat4plot$name
+        )
       
       pyear_uti <- ggplotly(plot_year_uti)
     })
@@ -803,6 +809,7 @@ group by traveltype_superclass,superclass_colourv,year")
                    order by year,month ASC")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
+        mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
         mutate(name = factor(name))
       
       
@@ -823,6 +830,11 @@ group by traveltype_superclass,superclass_colourv,year")
           breaks = seq(1,12),
           labels= levels(factor(seq(1,12)))
           #limits=seq(1,12)) 
+        ) + 
+        scale_fill_manual(
+          values=dat4plot$colourv,
+          breaks=dat4plot$name,
+          labels=dat4plot$name
         )
       
       pmonth_uti <- ggplotly(plot_month_uti)
