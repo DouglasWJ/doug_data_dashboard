@@ -3,77 +3,7 @@
 
 navbarPage(windowTitle = "Dougs Data",
            tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} "),
-           tabPanel("Travel",
-                    sidebarLayout(
-                      sidebarPanel(
-                        width=2,
-                        checkboxGroupInput("lfilter", "Traveltype Filter",
-                                           choices = c(
-                                             "Walk" = "Walk",
-                                             "Electric Rideable" = "Electric_Skateboard",
-                                             "Cycling" = "Cycling",
-                                             "Electric Car" = "Electric_Car",
-                                             "Car" = "Car",
-                                             "Bus - Local" = "Bus - Local",
-                                             "Bus - Coach" = "Bus - Coach",
-                                             "Train - Light" = "Train - Light",
-                                             "Train - National" = "Train - National",
-                                             "Canoe" = "Canoe",
-                                             "Boat" = "Boat",
-                                             "Car Ferry" = "Car_Ferry",
-                                             "Aerial Lift" = "Airtrack",
-                                             "Helicopter" = "Helicopter",
-                                             "Plane - Domestic" = "Plane - Domestic",
-                                             "Plane - Short Haul" = "Plane - Short Haul",
-                                             "Plane - Long Haul" = "Plane - Long Haul",
-                                             "Plane - International" = "Plane - International",
-                                             "None" = "None",
-                                             "misc" = "misc"),
-                                           selected = c(
-                                             "Canoe",
-                                             "Boat",
-                                             "Car_Ferry",
-                                             "Walk",
-                                             "Electric_Skateboard",
-                                             "Cycling",
-                                             "Bus - Local",
-                                             "Bus - Coach",
-                                             "Electric_Car",
-                                             "Car",
-                                             "Train - Light",
-                                             "Train - National",
-                                             "Airtrack",
-                                             "Helicopter",
-                                             "Plane - Domestic",
-                                             "Plane - Short Haul",
-                                             "Plane - Long Haul",
-                                             "Plane - International"
-                                             )
-                        ),
-                        sliderTextInput(inputId = "dateslide",
-                                        label = "Time Filter",
-                                        choices = choices_month,
-                                        selected = c(choices_month[1],choices_month[length(choices_month)])
-                        ),
-                        actionButton("rerun","Apply Filter/Redraw Map"),
-                        radioButtons("graphtype",label="Graph Data:",choices=c("Time" = "time_taken",
-                                                                               "Distance" = "length",
-                                                                               "Emissions" = "kg_all_co2e",
-                                                                               "Count of Journeys" = "count_journeys"),
-                                     selected="time_taken")
-                        #,actionButton("updata","Refresh Data Source")
-                      ),
-                      mainPanel(
-                        width=10,
-                        leafletOutput("mymap",height=400),
-                        tabsetPanel(
-                          tabPanel(title="Weekly",plotlyOutput("weekmap",height=400)),
-                          tabPanel(title="Monthly",plotlyOutput("monthmap",height=400)),
-                          tabPanel(title="Annual",plotlyOutput("annualmap",height=400))
-                        )
-                      )
-                    )
-           ),
+           
            tabPanel("Utility Usage",
                     sidebarLayout(
                       sidebarPanel(
@@ -135,6 +65,77 @@ navbarPage(windowTitle = "Dougs Data",
                                     tabPanel(title="Annual",plotlyOutput("annualmap_emi",height="100%"))
                                   ))
                     )),
+           tabPanel("Travel",
+                    sidebarLayout(
+                      sidebarPanel(
+                        width=2,
+                        checkboxGroupInput("lfilter", "Traveltype Filter",
+                                           choices = c(
+                                             "Walk" = "Walk",
+                                             "Electric Rideable" = "Electric_Skateboard",
+                                             "Cycling" = "Cycling",
+                                             "Electric Car" = "Electric_Car",
+                                             "Car" = "Car",
+                                             "Bus - Local" = "Bus - Local",
+                                             "Bus - Coach" = "Bus - Coach",
+                                             "Train - Light" = "Train - Light",
+                                             "Train - National" = "Train - National",
+                                             "Canoe" = "Canoe",
+                                             "Boat" = "Boat",
+                                             "Car Ferry" = "Car_Ferry",
+                                             "Aerial Lift" = "Airtrack",
+                                             "Helicopter" = "Helicopter",
+                                             "Plane - Domestic" = "Plane - Domestic",
+                                             "Plane - Short Haul" = "Plane - Short Haul",
+                                             "Plane - Long Haul" = "Plane - Long Haul",
+                                             "Plane - International" = "Plane - International",
+                                             "None" = "None",
+                                             "misc" = "misc"),
+                                           selected = c(
+                                             "Canoe",
+                                             "Boat",
+                                             "Car_Ferry",
+                                             "Walk",
+                                             "Electric_Skateboard",
+                                             "Cycling",
+                                             "Bus - Local",
+                                             "Bus - Coach",
+                                             "Electric_Car",
+                                             "Car",
+                                             "Train - Light",
+                                             "Train - National",
+                                             "Airtrack",
+                                             "Helicopter",
+                                             "Plane - Domestic",
+                                             "Plane - Short Haul",
+                                             "Plane - Long Haul",
+                                             "Plane - International"
+                                           )
+                        ),
+                        sliderTextInput(inputId = "dateslide",
+                                        label = "Time Filter",
+                                        choices = choices_month,
+                                        selected = c(choices_month[1],choices_month[length(choices_month)])
+                        ),
+                        actionButton("rerun","Apply Filter/Redraw Map"),
+                        radioButtons("graphtype",label="Graph Data:",choices=c("Time" = "time_taken",
+                                                                               "Distance" = "length",
+                                                                               "Emissions" = "kg_all_co2e",
+                                                                               "Count of Journeys" = "count_journeys"),
+                                     selected="time_taken")
+                        #,actionButton("updata","Refresh Data Source")
+                      ),
+                      mainPanel(
+                        width=10,
+                        leafletOutput("mymap",height=400),
+                        tabsetPanel(
+                          tabPanel(title="Weekly",plotlyOutput("weekmap",height=400)),
+                          tabPanel(title="Monthly",plotlyOutput("monthmap",height=400)),
+                          tabPanel(title="Annual",plotlyOutput("annualmap",height=400))
+                        )
+                      )
+                    )
+           ),
            tabPanel("Hill Walking",
                     sidebarLayout(
              sidebarPanel(
