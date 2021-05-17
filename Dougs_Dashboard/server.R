@@ -111,7 +111,7 @@ function(input, output, session) {
                               daterange <- get_daterange()
                               #map_dta <- filter(travel_lines,traveltype %in% filtervs & start_time_utc >= daterange[1] & end_time_utc <= daterange[2])
                               
-                              query <- str_c("select colourv,geom,traveltype,start_time_utc,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2
+                              query <- str_c("select colourv,geom,traveltype,start_time_utc,srat_time_local,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2
                    where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                               
@@ -139,6 +139,9 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                                                 "<td>",map_dta$traveltype,"</td>",
                                                 "</tr>",
                                                 "<tr>",
+                                                "<td>Start Time (Local): </td>",
+                                                "<td>",map_dta$start_time_local,"</td>",
+                                                "</tr>",
                                                 "<td>Start Time (UTC): </td>",
                                                 "<td>",map_dta$start_time_utc,"</td>",
                                                 "</tr>",
@@ -635,7 +638,7 @@ group by traveltype_superclass,superclass_colourv,year")
       #daterange <- get_daterange()
       #map_dta <- filter(travel_lines,traveltype %in% filtervs & start_time_utc >= daterange[1] & end_time_utc <= daterange[2])
       
-      query <- str_c("select colourv,geom,traveltype,start_time_utc,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2")
+      query <- str_c("select colourv,geom,traveltype,start_time_utc,start_time_local,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2")
                      #where traveltype = 'Walk'")
       
       map_dta <- st_read(dsn=pgconn,query=query)
@@ -646,6 +649,9 @@ group by traveltype_superclass,superclass_colourv,year")
                          "<td>",map_dta$traveltype,"</td>",
                          "</tr>",
                          "<tr>",
+                         "<td>Start Time (Local): </td>",
+                         "<td>",map_dta$start_time_local,"</td>",
+                         "</tr>",
                          "<td>Start Time (UTC): </td>",
                          "<td>",map_dta$start_time_utc,"</td>",
                          "</tr>",
