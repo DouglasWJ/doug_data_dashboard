@@ -364,7 +364,7 @@ reload_elec_data <- function() {
     #rename(minute = `lubridate::minute(time)`) %>%
     mutate(unaccum = across(.cols=c(value), ~ .-c(0,lag(.)[-1]))) %>%
     mutate(unaccum = .$unaccum$value) %>%
-    mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Europe/London") - 2.5*60) %>%
+    mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Etc/GMT") - 2.5*60) %>%
     mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
     mutate(colourv = '#00999d') %>%
     #filter(time >= dayfilt & time <= dayfilt+1) %>%
@@ -394,7 +394,7 @@ reload_gas_data <- function() {
     mutate(unaccum = .$unaccum$value) %>%
     mutate(unaccum = if_else(value == unaccum,0,unaccum)) %>%
     mutate(unaccum = if_else(unaccum <= 0,0,unaccum)) %>%
-    mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Europe/London") - 15*60) %>%
+    mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Etc/GMT") - 15*60) %>%
     mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
     mutate(colourv = '#880f07') %>%
     #filter(time >= dayfilt & time <= dayfilt+1) %>%
