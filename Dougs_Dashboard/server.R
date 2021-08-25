@@ -997,7 +997,7 @@ group by traveltype_superclass,superclass_colourv,year")
     sum(value) as value from emissions.emissions_daily 
     where day >= to_date('",daterange_emi[1],"','YYYY-MM-DD') and day <= to_date('",daterange_emi[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(emifilt,collapse="','"),"')
-                   group by isoyear,isoweek,name,colourv
+                   group by isoyear,isoweek,name,colourv,orderv
                    order by isoyear,isoweek ASC"
       )
       
@@ -1050,7 +1050,7 @@ group by traveltype_superclass,superclass_colourv,year")
       query <- str_c("select name,colourv,orderv,month,year,sum(value) as value from emissions.emissions_daily 
     where day >= to_date('",daterange_emi[1],"','YYYY-MM-DD') and day <= to_date('",daterange_emi[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(emifilt,collapse="','"),"')
-                   group by year,month,name,colourv
+                   group by year,month,name,colourv,orderv
                    order by year,month ASC"
       )
       
