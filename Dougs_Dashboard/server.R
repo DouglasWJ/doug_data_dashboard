@@ -1003,19 +1003,25 @@ group by traveltype_superclass,superclass_colourv,year")
       
       weekly_emissions_data <- dbGetQuery(pgconn,query)
       
+      weekly_emissions_data <- left_join(weekly_emissions_data,emissions_filters_types_df)
+      
+      ordering <- weekly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
+      
+      #print(names(weekly_emissions_data))
+      
       plot_week_emi <- ggplot() +
         geom_col(
           position = "stack",
           data = weekly_emissions_data,
-          aes(x = isoweek, y = value, fill = name)
+          aes(x = isoweek, y = value, fill = factor(displayname,levels=ordering))
         ) +
         theme(axis.text.x = element_blank(),
               axis.ticks.x=element_blank()) +
         facet_wrap( ~ isoyear) + 
         scale_fill_manual(
           values=weekly_emissions_data$colourv,
-          breaks=weekly_emissions_data$name,
-          labels=weekly_emissions_data$name
+          breaks=weekly_emissions_data$displayname#,
+          #labels=weekly_emissions_data$displayname
         )
       
       pweek_emi <- ggplotly(plot_week_emi)
@@ -1050,13 +1056,15 @@ group by traveltype_superclass,superclass_colourv,year")
       
       monthly_emissions_data <- dbGetQuery(pgconn,query)
       
+      monthly_emissions_data <- left_join(monthly_emissions_data,emissions_filters_types_df)
       
+      ordering <- monthly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
       
       plot_month_emi <- ggplot() +
         geom_col(
           position = "stack",
           data = monthly_emissions_data,
-          aes(x = month, y = value, fill = name)
+          aes(x = month, y = value, fill = factor(displayname,levels=ordering))
         ) +
         theme(axis.text.x = element_text(
           angle = 90,
@@ -1067,14 +1075,15 @@ group by traveltype_superclass,superclass_colourv,year")
         facet_wrap( ~ year) + 
         scale_fill_manual(
           values=monthly_emissions_data$colourv,
-          breaks=monthly_emissions_data$name,
-          labels=monthly_emissions_data$name
+          breaks=monthly_emissions_data$displayname#,
+          #labels=monthly_emissions_data$name
         ) +
         scale_x_continuous(
           breaks = seq(1,12),
           labels= levels(factor(seq(1,12)))
           #limits=seq(1,12)) 
-        )
+        ) + 
+        guides(fill=guide_legend(title="Source"))
       
       pmonth_emi <- ggplotly(plot_month_emi)
       
@@ -1098,28 +1107,31 @@ group by traveltype_superclass,superclass_colourv,year")
       #   group_by(name,colourv,year) %>%
       #   summarise(value = sum(value)) 
       
-      query <- str_c("select name,colourv,year,sum(value) as value from emissions.emissions_daily 
+      query <- str_c("select name,colourv,orderv,year,sum(value) as value from emissions.emissions_daily 
     where day >= to_date('",daterange_emi[1],"','YYYY-MM-DD') and day <= to_date('",daterange_emi[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(emifilt,collapse="','"),"')
-                   group by year,name,colourv
-                   order by year ASC"
+                   group by year,name,colourv,orderv
+                   order by orderv ASC"
       )
       
       annual_emissions_data <- dbGetQuery(pgconn,query)
       
+      annual_emissions_data <- left_join(annual_emissions_data,emissions_filters_types_df)
+      
+      ordering <- annual_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
       
       plot_year_emi <- ggplot() +
         geom_col(
           position = "stack",
           data = annual_emissions_data,
-          aes(x = year, y = value, fill = name)
+          aes(x = year, y = value, fill = factor(displayname,levels=ordering))
         ) +
         #theme(axis.text.x = element_blank()) +
         #facet_wrap( ~ year) + 
         scale_fill_manual(
           values=annual_emissions_data$colourv,
-          breaks=annual_emissions_data$name,
-          labels=annual_emissions_data$name
+          breaks=annual_emissions_data$displayname#,
+          #labels=annual_emissions_data$name
         ) + 
         scale_x_continuous(
           breaks = seq(min_yr_emi,max_yr_emi),
