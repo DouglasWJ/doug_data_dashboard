@@ -949,7 +949,7 @@ group by traveltype_superclass,superclass_colourv,year")
           values=dat4plot$colourv,
           breaks=dat4plot$displayname,
           labels=dat4plot$displayname
-        )
+        ) + guides(fill=guide_legend(title="Source"))
       
       pweek_uti <- ggplotly(plot_week_uti)
     })
