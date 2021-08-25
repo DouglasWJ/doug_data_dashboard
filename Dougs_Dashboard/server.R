@@ -459,6 +459,8 @@ group by traveltype_superclass,superclass_colourv,week,isoyear")
       #   mutate(week = as.numeric(str_sub(week,6,7))) %>%
       #   rename(`Travel Type` = traveltype_superclass)
       
+      graph_ylabel <- names(travel_map_types[travel_map_types==graph_type])
+      
       plot_week <- ggplot() + 
         geom_col(data=travel_stats_week,aes_string(x="week",y=graph_type,fill="`Travel Type`")) +
         facet_wrap(~isoyear,scales="fixed") +
@@ -473,7 +475,8 @@ group by traveltype_superclass,superclass_colourv,week,isoyear")
           panel.grid.major.x=element_blank(),
           panel.grid.minor.x=element_blank(),
           #panel.grid.minor.y = element_line(colour = "grey"),
-          panel.ontop = FALSE)
+          panel.ontop = FALSE) +
+        ylab(graph_ylabel)
       
       pweek <- ggplotly(plot_week)
     })
@@ -510,6 +513,8 @@ group by traveltype_superclass,superclass_colourv,month,year")
         rename(`Travel Type` = traveltype)
       
       graph_type <- get_graphtype()
+      
+      graph_ylabel <- names(travel_map_types[travel_map_types==graph_type])
       
       #By Week:
       # travel_stats_month <- map_dta %>%
@@ -548,7 +553,8 @@ group by traveltype_superclass,superclass_colourv,month,year")
           panel.grid.major.x=element_blank(),
           panel.grid.minor.x=element_blank(),
           #panel.grid.minor.y = element_line(colour = "grey"),
-          panel.ontop = FALSE)
+          panel.ontop = FALSE) +
+        ylab(graph_ylabel)
       
       
       pmonth <- ggplotly(plot_month)
@@ -565,6 +571,8 @@ group by traveltype_superclass,superclass_colourv,month,year")
       
       
       graph_type <- get_graphtype()
+      
+      graph_ylabel <- names(travel_map_types[travel_map_types==graph_type])
       
       query <- str_c("select traveltype_superclass as traveltype,superclass_colourv,year,
 sum(EXTRACT(epoch FROM duration)/3600) as time_taken,
@@ -624,7 +632,8 @@ group by traveltype_superclass,superclass_colourv,year")
           panel.grid.major.x=element_blank(),
           panel.grid.minor.x=element_blank(),
           #panel.grid.minor.y = element_line(colour = "grey"),
-          panel.ontop = FALSE)
+          panel.ontop = FALSE) +
+        ylab(graph_ylabel)
       
       
       pyear <- ggplotly(plot_year)
@@ -699,6 +708,9 @@ group by traveltype_superclass,superclass_colourv,year")
       
       daterange_uti <- get_daterange_uti()
       emiuseuti <- get_usageoremi()
+      
+      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
+      
       filtuti <- get_utilityfilt()
       
       filt <- str_c(filtuti, "_", emiuseuti)
@@ -754,7 +766,7 @@ group by traveltype_superclass,superclass_colourv,year")
         #   vjust = 0.5,
         #   hjust = 1
         # ))+
-        ylab(emiuseuti)  +
+        ylab(graph_ylabel)  +
         #scale_fill_manual(values = c("#b53737","#7ef9ff"))
         scale_x_continuous(
           breaks = seq(min_yr_uti,max_yr_uti),
@@ -776,6 +788,9 @@ group by traveltype_superclass,superclass_colourv,year")
       
       daterange_uti <- get_daterange_uti()
       emiuseuti <- get_usageoremi()
+      
+      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
+      
       filtuti <- get_utilityfilt()
       
       filt <- str_c(filtuti, "_", emiuseuti)
@@ -831,7 +846,7 @@ group by traveltype_superclass,superclass_colourv,year")
           hjust = 1
         )) +
         facet_wrap( ~ year) +
-        ylab(emiuseuti) +
+        ylab(graph_ylabel) +
         scale_x_continuous(
           breaks = seq(1,12),
           labels= levels(factor(seq(1,12)))
@@ -854,6 +869,9 @@ group by traveltype_superclass,superclass_colourv,year")
       
       daterange_uti <- get_daterange_uti()
       emiuseuti <- get_usageoremi()
+      
+      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
+      
       filtuti <- get_utilityfilt()
       
       filt <- str_c(filtuti, "_", emiuseuti)
@@ -910,7 +928,7 @@ group by traveltype_superclass,superclass_colourv,year")
         theme(axis.text.x = element_blank(),
               axis.ticks.x = element_blank()) +
         facet_wrap( ~ isoyear) +
-        ylab(emiuseuti) +
+        ylab(graph_ylabel) +
         scale_fill_manual(
           values=dat4plot$colourv,
           breaks=dat4plot$name,

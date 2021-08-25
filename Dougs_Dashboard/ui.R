@@ -18,10 +18,8 @@ navbarPage(windowTitle = "Dougs Data",
                                                      "Electricity" = "elec"
                                            ),selected = c("gas","elec")
                         ),
-                        radioButtons("usageoremissionsrdo",label="Data:",choices=c("Usage" = "usage",
-                                                                                   "Emissions" = "emissions"
-                        ),
-                        selected="usage")
+                        radioButtons("usageoremissionsrdo",label="Data:",choices=emissions_graph_types
+                        ,selected="usage")
                         #,actionButton("updata_uti","Refresh Data Source")
                       ),mainPanel(width=10,
                                   tabsetPanel(
@@ -42,14 +40,8 @@ navbarPage(windowTitle = "Dougs Data",
                                         selected = c(choices_month_emi[1],choices_month_emi[length(choices_month_emi)])
                         ),
                         checkboxGroupInput("emifilt","Emissions Source:",
-                                           choices=c("Aircraft" = "Aircraft",
-                                                     "Boat" = "Boat",
-                                                     "Bus" = "Bus",
-                                                     "Car" = "Car",
-                                                     "Train" = "Train",
-                                                     "Gas" = "gas_emissions",
-                                                     "Electricity" = "elec_emissions"
-                                           ),selected = c("Aircraft",
+                                           choices=emissions_filters_types,
+                                           selected = c("Aircraft",
                                                           "Boat",
                                                           "Bus",
                                                           "Car",
@@ -128,10 +120,7 @@ navbarPage(windowTitle = "Dougs Data",
                                         selected = c(choices_month[1],choices_month[length(choices_month)])
                         ),
                         actionButton("rerun","Apply Filter/Redraw Map"),
-                        radioButtons("graphtype",label="Graph Data:",choices=c("Time" = "time_taken",
-                                                                               "Distance" = "length",
-                                                                               "Emissions" = "kg_all_co2e",
-                                                                               "Count of Journeys" = "count_journeys"),
+                        radioButtons("graphtype",label="Graph Data:",choices=travel_map_types,
                                      selected="time_taken")
                         #,actionButton("updata","Refresh Data Source")
                       ),
