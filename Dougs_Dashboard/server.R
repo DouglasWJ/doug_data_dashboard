@@ -991,7 +991,7 @@ group by traveltype_superclass,superclass_colourv,year")
       #   summarise(value = sum(value)) %>%
       #   mutate(week = substr(week,6,7))
       
-      query <- str_c("select name,colourv,
+      query <- str_c("select name,colourv,orderv,
     extract('week' from day) as isoweek,
     extract('isoyear' from day) as isoyear,
     sum(value) as value from emissions.emissions_daily 
@@ -1047,7 +1047,7 @@ group by traveltype_superclass,superclass_colourv,year")
       #   summarise(value = sum(value)) %>%
       #   mutate(month = as.numeric(substr(month,6,7)))
       
-      query <- str_c("select name,colourv,month,year,sum(value) as value from emissions.emissions_daily 
+      query <- str_c("select name,colourv,orderv,month,year,sum(value) as value from emissions.emissions_daily 
     where day >= to_date('",daterange_emi[1],"','YYYY-MM-DD') and day <= to_date('",daterange_emi[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(emifilt,collapse="','"),"')
                    group by year,month,name,colourv
