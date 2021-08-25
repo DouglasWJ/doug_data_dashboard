@@ -740,7 +740,12 @@ group by traveltype_superclass,superclass_colourv,year")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
         mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
-        mutate(name = factor(name))
+        mutate(name = factor(name)) %>%
+        mutate(displayname = case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                       name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                       name == "gas_usage" ~ "Gas Usage (kWh)",
+                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)"
+                                    ))
       
       # utilities_annual <- elec_emissions_annual %>%
       #   full_join(gas_emissions_annual) %>%
@@ -759,7 +764,7 @@ group by traveltype_superclass,superclass_colourv,year")
       plot_year_uti <- ggplot() +
         geom_col(position = grapht,
                  data = dat4plot,
-                 aes(x = year, y = value, fill = name)) +
+                 aes(x = year, y = value, fill = displayname)) +
         #theme(axis.ticks.x=element_blank()) +
         # theme(axis.text.x = element_text(
         #   angle = 90,
@@ -775,7 +780,8 @@ group by traveltype_superclass,superclass_colourv,year")
           values=dat4plot$colourv
           #breaks=dat4plot$name,
           #labels=dat4plot$name
-        )
+        ) + guides(fill=guide_legend(title="Source"))
+        
       
       pyear_uti <- ggplotly(plot_year_uti)
     })
@@ -831,14 +837,19 @@ group by traveltype_superclass,superclass_colourv,year")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
         mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
-        mutate(name = factor(name))
+        mutate(name = factor(name)) %>%
+        mutate(displayname = case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                       name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                       name == "gas_usage" ~ "Gas Usage (kWh)",
+                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)"
+        ))
       
       
       plot_month_uti <- ggplot() +
         geom_col(
           position = grapht,
           data = dat4plot,
-          aes(x = month, y = value, fill = name)
+          aes(x = month, y = value, fill = displayname)
         ) +
         theme(axis.text.x = element_text(
           angle = 90,
@@ -854,9 +865,9 @@ group by traveltype_superclass,superclass_colourv,year")
         ) + 
         scale_fill_manual(
           values=dat4plot$colourv,
-          breaks=dat4plot$name,
-          labels=dat4plot$name
-        )
+          breaks=dat4plot$displayname,
+          labels=dat4plot$displayname
+        ) + guides(fill=guide_legend(title="Source"))
       
       pmonth_uti <- ggplotly(plot_month_uti)
     })
@@ -917,13 +928,18 @@ group by traveltype_superclass,superclass_colourv,year")
       dat4plot <- dbGetQuery(pgconn,query) %>%
         mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
         #mutate(colourv = if_else(name == 'elec_emissions','#00999d','#880f07')) %>%
-        mutate(name = factor(name))
+        mutate(name = factor(name)) %>%
+        mutate(displayname = case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                       name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                       name == "gas_usage" ~ "Gas Usage (kWh)",
+                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)"
+        ))
       
       plot_week_uti <- ggplot() +
         geom_col(
           position = grapht,
           data = dat4plot,
-          aes(x = isoweek, y = value, fill = name)
+          aes(x = isoweek, y = value, fill = displayname)
         ) +
         theme(axis.text.x = element_blank(),
               axis.ticks.x = element_blank()) +
@@ -931,8 +947,8 @@ group by traveltype_superclass,superclass_colourv,year")
         ylab(graph_ylabel) +
         scale_fill_manual(
           values=dat4plot$colourv,
-          breaks=dat4plot$name,
-          labels=dat4plot$name
+          breaks=dat4plot$displayname,
+          labels=dat4plot$displayname
         )
       
       pweek_uti <- ggplotly(plot_week_uti)
@@ -1022,7 +1038,8 @@ group by traveltype_superclass,superclass_colourv,year")
           values=weekly_emissions_data$colourv,
           breaks=weekly_emissions_data$displayname#,
           #labels=weekly_emissions_data$displayname
-        )
+        ) + 
+        guides(fill=guide_legend(title="Source"))
       
       pweek_emi <- ggplotly(plot_week_emi)
       
@@ -1135,7 +1152,8 @@ group by traveltype_superclass,superclass_colourv,year")
         ) + 
         scale_x_continuous(
           breaks = seq(min_yr_emi,max_yr_emi),
-          labels= levels(factor(seq(min_yr_emi,max_yr_emi))))
+          labels= levels(factor(seq(min_yr_emi,max_yr_emi)))) + 
+        guides(fill=guide_legend(title="Source"))
       
       pyear_emi <- ggplotly(plot_year_emi)
       

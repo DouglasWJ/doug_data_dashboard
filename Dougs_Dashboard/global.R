@@ -539,9 +539,9 @@ choices_month_hil <- format(seq.Date(from = choice_month_hilq[1,1],to=choice_mon
 min_yr_hil <- choice_month_hilq[1,3]
 max_yr_hil <- choice_month_hilq[1,4]
 
-travel_map_types <- c("Time" = "time_taken",
-  "Distance" = "length",
-  "Emissions" = "kg_all_co2e",
+travel_map_types <- c("Time (hours)" = "time_taken",
+  "Distance (km)" = "length",
+  "Emissions (kg CO2e)" = "kg_all_co2e",
   "Count of Journeys" = "count_journeys")
 
 emissions_graph_types <- c("Usage" = "usage",
