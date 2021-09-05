@@ -1,4 +1,5 @@
 library(shiny)
+library(leafgl)
 
 options(shiny.host = "0.0.0.0")
 options(shiny.port = 7322)
@@ -111,11 +112,13 @@ function(input, output, session) {
                               daterange <- get_daterange()
                               #map_dta <- filter(travel_lines,traveltype %in% filtervs & start_time_utc >= daterange[1] & end_time_utc <= daterange[2])
                               
-                              query <- str_c("select colourv,geom,traveltype,start_time_utc,start_time_local,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2
+                              query <- str_c("select track_id,colourv,geom,traveltype,start_time_utc,start_time_local,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2
                    where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                               
                               map_dta <- st_read(dsn=pgconn,query=query)
+                              
+                              truefalse <- inherits(sf::st_geometry(map_dta), c("sfc_LINESTRING", "sfc_MULTILINESTRING"))
                               
                               # popupsv <- paste0( "<b>Traveltype: </b>"
                               #                    , map_dta$traveltype
@@ -132,6 +135,8 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                               #                    ,"<b>Emissions (kg co2e): </b>"
                               #                    ,round(map_dta$kg_all_co2e,2)
                               # )
+                              
+                              #ids <- map_dta$track_id
                               
                               popupsv <- paste0("<table>",
                                                 "<tr>",
@@ -160,17 +165,32 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                                                 "</table>"
                                                 )
                               
+                              if (truefalse == TRUE) {
+                              
                               #print(map_dta)
                               leafletProxy("mymap") %>%
                                 clearShapes() %>%
+                                clearGlLayers() %>%
+                                #removeGlPolylines(layerId = ids) %>%
                                 #removeShape("travel_lines_id") %>%
-                                addPolylines(
+                                addGlPolylines(
                                   data = map_dta,
                                   color =  ~colourv,
                                   popup = popupsv,
-                                  group = "Tracks"
+                                  group = "Tracks"#,
+                                  #layerId = ids
                                   #layerId = "travel_lines_id"
                                 )
+                                
+                              } else {
+                                
+                                leafletProxy("mymap") %>%
+                                  clearShapes() %>%
+                                  clearGlLayers()
+                                
+                              }
+                              
+                              
                             })
   
   output$myhillmap <- renderLeaflet(
@@ -181,28 +201,30 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
       #daterange <- get_daterange()
       #map_dta <- filter(travel_lines,traveltype %in% filtervs & start_time_utc >= daterange[1] & end_time_utc <= daterange[2])
       
-      query <- str_c("select hillname,classification,feature,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
-select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
+      query <- str_c("select hillnumber,hillname,classification,feature,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
+select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
 from
 (select hillnumber,feature,classification,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) a
 full outer JOIN
 (select *,'blue' as color from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) b 
 using (hillnumber)
-group by hillname,feature,classification,metres,feet,drop,geom,color) subq
+group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color) subq
                      where num_asc > 0")
       
       map_dta <- st_read(dsn=pgconn,query=query)
       
-      query2 <- str_c("select hillname,classification,feature,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
-select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
+      query2 <- str_c("select hillnumber,hillname,classification,feature,metres,feet,drop,geom,first_asc,num_asc,COALESCE(color,'red') as color from (
+select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,color 
 from
 (select hillnumber,feature,classification,hillname,metres,feet,drop from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) a
 full outer JOIN
 (select *,'blue' as color from dobih.userlog_with_geom_mv where hillnumber IN (select hillnumber from dobih.classlink where classref = 'M')) b 
 using (hillnumber)
-group by hillname,feature,classification,metres,feet,drop,geom,color) subq
+group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color) subq
                      where num_asc > 0")
       map_dta2 <- st_zm(st_read(dsn=pgconn,query=query2))
+      
+      #ids <- map_dta2$hillnumber
       
       popupsv <- popupsv <- paste0("<h5>","<b>",map_dta$hillname,"</b>","</h5>",
                                    "<table>",
@@ -248,11 +270,12 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq
       map <- leaflet() %>%
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
-        addPolylines(data = map_dta2,
+        addGlPolylines(data = map_dta2,
                      color = "brown",
                      group = "Tracks",
                      weight = 2,
                      stroke = TRUE,
+                     #layerId = ids,
                      fill = FALSE#,
                      #bringToFront = TRUE,
                      #sendToBack = FALSE
@@ -261,7 +284,8 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq
           data = map_dta,
           color =  ~ color,
           popup = popupsv,
-          group = "Hills"
+          group = "Hills"#,
+          #layerId = 2
           #layerId = "travel_lines_id"
         ) %>%
         addLayersControl(
@@ -303,29 +327,32 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq
                                     
                                     query <- str_c(
                                     "select * from (
-select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
+select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
 from
 (select hillnumber,classification,feature,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
 full outer JOIN
 (select *,'blue' as color from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
 using (hillnumber)
-group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
+group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
                                     
                                     
                                     map_dta <- st_read(dsn=pgconn,query=query)
                                     
                                     query2 <- str_c(
                                       "select * from (
-select hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
+select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
 from
 (select hillnumber,classification,feature,hillname,metres,feet,drop from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
 INNER JOIN
 (select *,'blue' as color from dobih.userlog_with_geom_mv where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
 using (hillnumber)
-group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
+group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
                                     
                                     map_dta2 <- st_zm(st_read(dsn=pgconn,query=query2))
                                     
+                                    truefalse <- inherits(sf::st_geometry(map_dta2), c("sfc_LINESTRING", "sfc_MULTILINESTRING"))
+                                    
+                                    #ids <-  map_dta2$hillnumber
                                     
                                     # popupsv <- paste0( "<b>Hill Name: </b>"
                                     #                    , map_dta$hillname
@@ -386,14 +413,18 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq
                                                       "</table>"
                                     )
                                     
+                                    if (truefalse == TRUE) {
                                     #print(map_dta)
                                     leafletProxy("myhillmap") %>%
                                       clearShapes() %>%
-                                      addPolylines(data = map_dta2,
+                                      clearGlLayers() %>%
+                                      #removeGlPolylines(layerId=ids) %>%
+                                      addGlPolylines(data = map_dta2,
                                                    color = "brown",
                                                    group = "Tracks",
                                                    weight = 2,
                                                    stroke = TRUE,
+                                                   #layerId = ids,
                                                    fill = FALSE#,
                                                    #bringToFront = TRUE,
                                                    #sendToBack = FALSE
@@ -402,9 +433,38 @@ group by hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq
                                         data = map_dta,
                                         color =  ~color,
                                         popup = popupsv,
-                                        group = "Hills"
+                                        group = "Hills"#,
+                                        #layerId = 2
                                         #layerId = "travel_lines_id"
                                       )
+                                    } else {
+                                      
+                                      leafletProxy("myhillmap") %>%
+                                        clearShapes() %>%
+                                        clearGlLayers() %>%
+                                        #removeGlPolylines(layerId=ids) %>%
+                                        # addGlPolylines(data = map_dta2,
+                                        #                color = "brown",
+                                        #                group = "Tracks",
+                                        #                weight = 2,
+                                        #                stroke = TRUE,
+                                        #                #layerId = ids,
+                                        #                fill = FALSE#,
+                                        #                #bringToFront = TRUE,
+                                        #                #sendToBack = FALSE
+                                        # ) %>%
+                                        addCircles(
+                                          data = map_dta,
+                                          color =  ~color,
+                                          popup = popupsv,
+                                          group = "Hills"#,
+                                          #layerId = 2
+                                          #layerId = "travel_lines_id"
+                                        )
+                                      
+                                    }
+                                    
+                                    
                                       
                                   })
   
@@ -685,11 +745,12 @@ group by traveltype_superclass,superclass_colourv,year")
       map <- leaflet() %>%
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
-        addPolylines(
+        addGlPolylines(
           data = map_dta,
           color =  ~ colourv,
           popup = popupsv,
-          group = "Tracks"
+          group = "Tracks",
+          layerId = 3
           #layerId = "travel_lines_id"
         ) %>%
         addLayersControl(

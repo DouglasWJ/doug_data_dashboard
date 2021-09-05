@@ -126,7 +126,7 @@ navbarPage(windowTitle = "Dougs Data",
                       ),
                       mainPanel(
                         width=10,
-                        leafletOutput("mymap",height=400),
+                        leafglOutput("mymap",height=400),
                         tabsetPanel(
                           tabPanel(title="Weekly",plotlyOutput("weekmap",height=400)),
                           tabPanel(title="Monthly",plotlyOutput("monthmap",height=400)),
@@ -228,7 +228,7 @@ navbarPage(windowTitle = "Dougs Data",
               tableOutput('tbl')
 ),
              mainPanel(width=10,
-                       leafletOutput("myhillmap"))
+                       leafglOutput("myhillmap"))
            
            )
 )

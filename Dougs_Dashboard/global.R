@@ -12,6 +12,7 @@ library(timeDate)               #for timeLastDayInMonth
 library(scales)
 library(htmltools)
 library(leaflet.providers)
+library(leafgl)
 
 
 units_options(group = c("(", ")") )
