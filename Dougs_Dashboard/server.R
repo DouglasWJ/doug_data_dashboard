@@ -539,7 +539,7 @@ group by traveltype_superclass,superclass_colourv,week,isoyear")
         ylab(graph_ylabel) +
         theme(legend.position="bottom")
       
-      pweek <- ggplotly(plot_week)
+      pweek <- ggplotly(plot_week) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
   
   output$monthmap <- renderPlotly(
@@ -619,7 +619,7 @@ group by traveltype_superclass,superclass_colourv,month,year")
         theme(legend.position="bottom")
       
       
-      pmonth <- ggplotly(plot_month)
+      pmonth <- ggplotly(plot_month) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
   
   output$annualmap <- renderPlotly(
@@ -699,7 +699,7 @@ group by traveltype_superclass,superclass_colourv,year")
         theme(legend.position="bottom")
       
       
-      pyear <- ggplotly(plot_year)
+      pyear <- ggplotly(plot_year) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
   
   output$mymap <- renderLeaflet(
@@ -848,7 +848,7 @@ group by traveltype_superclass,superclass_colourv,year")
         theme(legend.position="bottom")
         
       
-      pyear_uti <- ggplotly(plot_year_uti)
+      pyear_uti <- ggplotly(plot_year_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
   
   output$monthmap_uti <- renderPlotly(
@@ -935,7 +935,7 @@ group by traveltype_superclass,superclass_colourv,year")
         ) + guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
-      pmonth_uti <- ggplotly(plot_month_uti)
+      pmonth_uti <- ggplotly(plot_month_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
   
   output$weekmap_uti <- renderPlotly(
@@ -1018,7 +1018,7 @@ group by traveltype_superclass,superclass_colourv,year")
         ) + guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
-      pweek_uti <- ggplotly(plot_week_uti)
+      pweek_uti <- ggplotly(plot_week_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
   
   output$daily_week_elec <- renderPlotly(
@@ -1109,7 +1109,7 @@ group by traveltype_superclass,superclass_colourv,year")
         guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
-      pweek_emi <- ggplotly(plot_week_emi)
+      pweek_emi <- ggplotly(plot_week_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
       
     })
   
@@ -1171,7 +1171,7 @@ group by traveltype_superclass,superclass_colourv,year")
         guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
-      pmonth_emi <- ggplotly(plot_month_emi)
+      pmonth_emi <- ggplotly(plot_month_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
       
     })
   
@@ -1225,7 +1225,7 @@ group by traveltype_superclass,superclass_colourv,year")
         guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
-      pyear_emi <- ggplotly(plot_year_emi)
+      pyear_emi <- ggplotly(plot_year_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
       
     })
   
