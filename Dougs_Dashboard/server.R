@@ -536,7 +536,8 @@ group by traveltype_superclass,superclass_colourv,week,isoyear")
           panel.grid.minor.x=element_blank(),
           #panel.grid.minor.y = element_line(colour = "grey"),
           panel.ontop = FALSE) +
-        ylab(graph_ylabel)
+        ylab(graph_ylabel) +
+        theme(legend.position="bottom")
       
       pweek <- ggplotly(plot_week)
     })
@@ -614,7 +615,8 @@ group by traveltype_superclass,superclass_colourv,month,year")
           panel.grid.minor.x=element_blank(),
           #panel.grid.minor.y = element_line(colour = "grey"),
           panel.ontop = FALSE) +
-        ylab(graph_ylabel)
+        ylab(graph_ylabel) +
+        theme(legend.position="bottom")
       
       
       pmonth <- ggplotly(plot_month)
@@ -693,7 +695,8 @@ group by traveltype_superclass,superclass_colourv,year")
           panel.grid.minor.x=element_blank(),
           #panel.grid.minor.y = element_line(colour = "grey"),
           panel.ontop = FALSE) +
-        ylab(graph_ylabel)
+        ylab(graph_ylabel) +
+        theme(legend.position="bottom")
       
       
       pyear <- ggplotly(plot_year)
@@ -841,7 +844,8 @@ group by traveltype_superclass,superclass_colourv,year")
           values=dat4plot$colourv
           #breaks=dat4plot$name,
           #labels=dat4plot$name
-        ) + guides(fill=guide_legend(title="Source"))
+        ) + guides(fill=guide_legend(title="Source")) +
+        theme(legend.position="bottom")
         
       
       pyear_uti <- ggplotly(plot_year_uti)
@@ -928,7 +932,8 @@ group by traveltype_superclass,superclass_colourv,year")
           values=dat4plot$colourv,
           breaks=dat4plot$displayname,
           labels=dat4plot$displayname
-        ) + guides(fill=guide_legend(title="Source"))
+        ) + guides(fill=guide_legend(title="Source")) +
+        theme(legend.position="bottom")
       
       pmonth_uti <- ggplotly(plot_month_uti)
     })
@@ -1010,7 +1015,8 @@ group by traveltype_superclass,superclass_colourv,year")
           values=dat4plot$colourv,
           breaks=dat4plot$displayname,
           labels=dat4plot$displayname
-        ) + guides(fill=guide_legend(title="Source"))
+        ) + guides(fill=guide_legend(title="Source")) +
+        theme(legend.position="bottom")
       
       pweek_uti <- ggplotly(plot_week_uti)
     })
@@ -1100,7 +1106,8 @@ group by traveltype_superclass,superclass_colourv,year")
           breaks=weekly_emissions_data$displayname#,
           #labels=weekly_emissions_data$displayname
         ) + 
-        guides(fill=guide_legend(title="Source"))
+        guides(fill=guide_legend(title="Source")) +
+        theme(legend.position="bottom")
       
       pweek_emi <- ggplotly(plot_week_emi)
       
@@ -1161,7 +1168,8 @@ group by traveltype_superclass,superclass_colourv,year")
           labels= levels(factor(seq(1,12)))
           #limits=seq(1,12)) 
         ) + 
-        guides(fill=guide_legend(title="Source"))
+        guides(fill=guide_legend(title="Source")) +
+        theme(legend.position="bottom")
       
       pmonth_emi <- ggplotly(plot_month_emi)
       
@@ -1214,7 +1222,8 @@ group by traveltype_superclass,superclass_colourv,year")
         scale_x_continuous(
           breaks = seq(min_yr_emi,max_yr_emi),
           labels= levels(factor(seq(min_yr_emi,max_yr_emi)))) + 
-        guides(fill=guide_legend(title="Source"))
+        guides(fill=guide_legend(title="Source")) +
+        theme(legend.position="bottom")
       
       pyear_emi <- ggplotly(plot_year_emi)
       
