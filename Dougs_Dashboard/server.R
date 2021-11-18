@@ -15,7 +15,9 @@ function(input, output, session) {
                where 
                classname in ('Tump (all)','Munro','Corbett','Graham','Highland Five','Donald Dewey','400-499m hill','300-399m hill','200-299m hill','100-199m hill','0-99m hill')
                ORDER BY cnt DESC"
-    )})
+    ) %>% mutate(class = factor(class,levels=c('Munro','Corbett','Graham','Highland Five','Donald Dewey','400-499m','300-399m','200-299m','100-199m','0-99m','Tump'))) %>%
+      arrange(class)
+    })
   
   get_traveltypefilter <- function() {
     return(input$lfilter)
