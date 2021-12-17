@@ -23,7 +23,7 @@ pgconn <-
     dbname = "spatial_db",
     host = "localhost",
     port = 5432,
-    user = "doug"
+    user = "u0_a312"
   )
 dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage,dobih, public"))
 
