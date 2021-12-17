@@ -20,7 +20,7 @@ units_options(group = c("(", ")") )
 pgconn <-
   dbConnect(
     RPostgres::Postgres(),
-    dbname = "spatial_db",
+    dbname = "postgres",
     host = "localhost",
     port = 5432,
     user = "u0_a312"
