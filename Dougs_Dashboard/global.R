@@ -21,8 +21,8 @@ pgconn <-
   dbConnect(
     RPostgres::Postgres(),
     dbname = "spatial_db",
-    host = "10.10.1.50",
-    port = 5433,
+    host = "localhost",
+    port = 5432,
     user = "doug"
   )
 dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage,dobih, public"))
