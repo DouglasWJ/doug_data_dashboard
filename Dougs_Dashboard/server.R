@@ -985,7 +985,7 @@ group by traveltype_superclass,superclass_colourv,year")
       
       query <- str_c("select 
     extract('doy' from day) as day,
-    extract('isoyear' from day) as isoyear,
+    extract('year' from day) as isoyear,
     name,sum(value) as value from utilityusage.dailyusage_emissions
     
                    where day >= to_date('",daterange_uti[1],"','YYYY-MM-DD') and day <= to_date('",daterange_uti[2],"','YYYY-MM-DD') and 
