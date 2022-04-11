@@ -23,10 +23,10 @@ navbarPage(windowTitle = "Dougs Data",
                         #,actionButton("updata_uti","Refresh Data Source")
                       ),mainPanel(width=10,
                                   tabsetPanel(
-                                    tabPanel(title="Daily",plotlyOutput("daymap_uti",height='100%')),
-                                    tabPanel(title="Weekly",plotlyOutput("weekmap_uti",height='100%')),
-                                    tabPanel(title="Monthly",plotlyOutput("monthmap_uti",height='100%')),
-                                    tabPanel(title="Annual",plotlyOutput("annualmap_uti",height='100%'))
+                                    tabPanel(title="Daily",plotlyOutput("daymap_uti")),
+                                    tabPanel(title="Weekly",plotlyOutput("weekmap_uti")),
+                                    tabPanel(title="Monthly",plotlyOutput("monthmap_uti")),
+                                    tabPanel(title="Annual",plotlyOutput("annualmap_uti"))
                                   )
                                   #,h4("Utility usage over the last 3 days:"),
                                   #plotlyOutput("daily_week_elec",height=200),
