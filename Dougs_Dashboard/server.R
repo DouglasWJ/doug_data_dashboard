@@ -1141,6 +1141,64 @@ group by traveltype_superclass,superclass_colourv,year")
       plot5minplotly <- ggplotly(plot5min)
     })
   
+  output$daymap_emi <- renderPlotly(
+    {
+      
+      #travel_lines_daily <- reload_lines_daily()
+      #utilities_daily_4merge <- reload_daily_utilities()
+      
+      daterange_emi <- get_daterange_emi()
+      emifilt <- get_emifilt()
+      
+      # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
+      #   filter(as.Date(day) >= daterange_emi[1] &
+      #            as.Date(day) <= daterange_emi[2] &
+      #            name %in% emifilt)
+      # 
+      # weekly_emissions_data <- daily_emissions_data %>%
+      #   group_by(name,colourv,week,year) %>%
+      #   summarise(value = sum(value)) %>%
+      #   mutate(week = substr(week,6,7))
+      
+      query <- str_c("select name,colourv,orderv,
+    extract('doy' from day) as day,
+    extract('year' from day) as isoyear,
+    sum(value) as value from emissions.emissions_daily 
+    where day >= to_date('",daterange_emi[1],"','YYYY-MM-DD') and day <= to_date('",daterange_emi[2],"','YYYY-MM-DD') and 
+                   name in ('",str_c(emifilt,collapse="','"),"')
+                   group by isoyear,isoweek,name,colourv,orderv
+                   order by isoyear,isoweek ASC"
+      )
+      
+      day_emissions_data <- dbGetQuery(pgconn,query)
+      
+      day_emissions_data <- left_join(day_emissions_data,emissions_filters_types_df)
+      
+      ordering <- day_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
+      
+      #print(names(weekly_emissions_data))
+      
+      plot_day_emi <- ggplot() +
+        geom_col(
+          position = "stack",
+          data = day_emissions_data,
+          aes(x = day, y = value, fill = factor(displayname,levels=ordering))
+        ) +
+        theme(axis.text.x = element_blank(),
+              axis.ticks.x=element_blank()) +
+        facet_wrap( ~ isoyear) + 
+        scale_fill_manual(
+          values=weekly_emissions_data$colourv,
+          breaks=weekly_emissions_data$displayname#,
+          #labels=weekly_emissions_data$displayname
+        ) + 
+        guides(fill=guide_legend(title="Source")) +
+        theme(legend.position="bottom")
+      
+      pday_emi <- ggplotly(plot_day_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+      
+    })
+  
   output$weekmap_emi <- renderPlotly(
     {
       
