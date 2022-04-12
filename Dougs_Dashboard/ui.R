@@ -2,7 +2,7 @@
 
 
 navbarPage(windowTitle = "Dougs Data",
-           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} "),
+           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #daymap_emi {height: calc(100vh - 120px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} #daymap_uti {height: calc(100vh - 120px) !important;} #weekmap_uti {height: calc(100vh - 120px) !important;} #monthmap_uti {height: calc(100vh - 120px) !important;} #annualmap_uti {height: calc(100vh - 120px) !important;} "),
            
            tabPanel("Utility Usage",
                     sidebarLayout(
