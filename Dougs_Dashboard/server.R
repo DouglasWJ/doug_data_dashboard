@@ -1188,8 +1188,8 @@ group by traveltype_superclass,superclass_colourv,year")
               axis.ticks.x=element_blank()) +
         facet_wrap( ~ isoyear) + 
         scale_fill_manual(
-          values=weekly_emissions_data$colourv,
-          breaks=weekly_emissions_data$displayname#,
+          values=day_emissions_data$colourv,
+          breaks=day_emissions_data$displayname#,
           #labels=weekly_emissions_data$displayname
         ) + 
         guides(fill=guide_legend(title="Source")) +
