@@ -494,7 +494,7 @@ from
 *,
 end_time_utc - start_time_utc as duration,
 extract('doy' from start_time_utc) as day,
-extract('isoyear' from start_time_utc) as isoyear
+extract('year' from start_time_utc) as isoyear
 from dougtracks.dougtracks_lines_emi_mv_nogeom
 where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
