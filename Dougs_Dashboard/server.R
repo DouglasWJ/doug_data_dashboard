@@ -470,6 +470,80 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
                                       
                                   })
   
+  output$daymap <- renderPlotly(
+    {
+      
+      #travel_lines <- reload_map_data_nogeom()
+      
+      filtervs <- rerun_filt()
+      daterange <- rerun_daterange()
+      #map_dta <- filter(travel_lines,traveltype %in% filtervs & start_time_utc >= daterange[1] & end_time_utc <= daterange[2])
+      
+      graph_type <- get_graphtype()
+      
+      query <- str_c("select traveltype_superclass as traveltype,superclass_colourv,day,isoyear,
+sum(EXTRACT(epoch FROM duration)/3600) as time_taken,
+sum(length2d_km) as length,
+sum(scope_1) as scope_1,
+sum(scope_2) as scope_2,
+sum(scope_3) as scope_3,
+sum(kg_all_co2e) as kg_all_co2e,
+count(*)::int as count_journeys
+from 
+(select 
+*,
+end_time_utc - start_time_utc as duration,
+extract('doy' from start_time_utc) as day,
+extract('isoyear' from start_time_utc) as isoyear
+from dougtracks.dougtracks_lines_emi_mv_nogeom
+where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
+and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
+) subq
+group by traveltype_superclass,superclass_colourv,day,isoyear")
+      
+      travel_stats_day <- dbGetQuery(pgconn,query) %>%
+        rename(`Travel Type` = traveltype)
+      
+      #By Week:
+      # travel_stats_week <- map_dta %>%
+      #   #st_drop_geometry() %>%
+      #   mutate(week = format(lubridate::ceiling_date(start_time_utc,"day"),"%Y-%W")) %>%
+      #   #filter(traveltype != 'Aircraft' & traveltype != 'None') %>%
+      #   group_by(traveltype_superclass,superclass_colourv,week,year) %>%
+      #   summarise(time_taken = set_units(set_units(sum(duration,na.rm=TRUE),"seconds"),"hours"),
+      #             length = set_units(set_units(sum(length2d_km,na.rm=TRUE),"km"),"km"),
+      #             scope_1 = set_units(sum(scope_1,na.rm=TRUE),"kg"),
+      #             scope_2 = set_units(sum(scope_2,na.rm=TRUE),"kg"),
+      #             scope_3 = set_units(sum(scope_3,na.rm=TRUE),"kg"),
+      #             kg_all_co2e = set_units(sum(kg_all_co2e,na.rm=TRUE),"kg")
+      #             ,count_journeys = n()) %>%
+      #   ungroup() %>%
+      #   mutate(week = as.numeric(str_sub(week,6,7))) %>%
+      #   rename(`Travel Type` = traveltype_superclass)
+      
+      graph_ylabel <- names(travel_map_types[travel_map_types==graph_type])
+      
+      plot_day <- ggplot() + 
+        geom_col(data=travel_stats_day,aes_string(x="day",y=graph_type,fill="`Travel Type`")) +
+        facet_wrap(~isoyear,scales="fixed") +
+        scale_fill_manual(
+          values=travel_stats_day$superclass_colourv,
+          breaks=travel_stats_day$`Travel Type`,
+          labels=travel_stats_day$`Travel Type`
+        ) +
+        theme(
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          panel.grid.major.x=element_blank(),
+          panel.grid.minor.x=element_blank(),
+          #panel.grid.minor.y = element_line(colour = "grey"),
+          panel.ontop = FALSE) +
+        ylab(graph_ylabel) +
+        theme(legend.position="bottom")
+      
+      pday <- ggplotly(plot_day) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+    })
+  
   output$weekmap <- renderPlotly(
     {
       
