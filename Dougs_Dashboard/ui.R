@@ -89,6 +89,7 @@ navbarPage(windowTitle = "Dougs Data",
                                              "Plane - Short Haul" = "Plane - Short Haul",
                                              "Plane - Long Haul" = "Plane - Long Haul",
                                              "Plane - International" = "Plane - International",
+                                             "Drone" = "Drone",
                                              "None" = "None",
                                              "misc" = "misc"),
                                            selected = c(
