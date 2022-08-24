@@ -272,6 +272,7 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
       map <- leaflet() %>%
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
+        addProviderTiles(providers$OpenTopoMap,group="OpenTopoMap") %>%
         addGlPolylines(data = map_dta2,
                      color = "brown",
                      group = "Tracks",
@@ -850,6 +851,7 @@ group by traveltype_superclass,superclass_colourv,year")
       map <- leaflet() %>%
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
+        addProviderTiles(providers$OpenTopoMap,group="OpenTopoMap") %>%
         addGlPolylines(
           data = map_dta,
           color =  ~ colourv,
