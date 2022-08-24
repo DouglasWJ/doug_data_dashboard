@@ -292,7 +292,7 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
           #layerId = "travel_lines_id"
         ) %>%
         addLayersControl(
-          baseGroups = c("OSM (default)", "Imagery (ESRI)"),
+          baseGroups = c("OSM (default)", "Imagery (ESRI)","OpenTopoMap"),
           overlayGroups = c("Hills","Tracks"),
           options = layersControlOptions(collapsed = FALSE)
         )
@@ -861,7 +861,7 @@ group by traveltype_superclass,superclass_colourv,year")
           #layerId = "travel_lines_id"
         ) %>%
         addLayersControl(
-          baseGroups = c("OSM (default)", "Imagery (ESRI)"),
+          baseGroups = c("OSM (default)", "Imagery (ESRI)","OpenTopoMap"),
           overlayGroups = c("Tracks"),
           options = layersControlOptions(collapsed = FALSE)
         )
