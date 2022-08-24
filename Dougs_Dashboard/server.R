@@ -313,13 +313,29 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
                                     #print(climbed)
                                     
                                     if (is.null(climbed)) {
-                                      ascq <- " where num_asc > 1000"
-                                    } else if (all.equal(climbed,c("yes","no")) == TRUE) {
-                                      ascq <- " where num_asc >= 0"
-                                    } else if (climbed == "yes") {
-                                      ascq <- " where num_asc > 0"
-                                    } else if (climbed == "no") {
-                                      ascq <- " where num_asc = 0"
+                                      ascq1 <- ""
+                                      ascq2 <- " where num_asc > 1000"
+                                    } else if ("Doug"%in%climbed & "Rhona"%in%climbed & "no"%in%climbed) {
+                                      ascq1 <- ""
+                                      ascq2 <- " where num_asc >= 0"
+                                    } else if ("Doug"%in%climbed & "Rhona"%in%climbed) {
+                                      ascq1 <- " where userkey = 1 OR userkey = 2 OR userkey = 12 OR userkey = 21"
+                                      ascq2 <- " where num_asc > 0"
+                                    } else if ("Doug"%in%climbed & "no"%in%climbed) {
+                                      ascq1 <- " where userkey = 1 "
+                                      ascq2 <- " where num_asc = 0 or userkey = 1"
+                                    } else if ("Rhona"%in%climbed & "no"%in%climbed) {
+                                      ascq1 <- " where userkey = 2"
+                                      ascq2 <- " where num_asc = 0 or userkey = 2"
+                                    } else if ("Doug"%in%climbed) {
+                                      ascq1 <- " where userkey = 1"
+                                      ascq2 <- " where num_asc > 0 or userkey = 1"
+                                    } else if ("Rhona"%in%climbed) {
+                                      ascq1 <- " where userkey = 2"
+                                      ascq2 <- " where num_asc > 0 and userkey in (2,21,12)"
+                                    } else if ("no"%in%climbed) {
+                                      ascq1 <- ""
+                                      ascq2 <- " where num_asc = 0"
                                     }
                                     
                                     altq <- str_c(" and metres between ",altfilt[1]," and ",altfilt[2])
@@ -328,27 +344,37 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
                                     
                                     
                                     query <- str_c(
-                                    "select * from (
-select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
+                                    "select *,
+                                    case 
+	when userkey = 1 then 'blue'
+	when userkey = 2 then 'green'
+	when userkey = 12 or userkey = 21 then 'purple'
+	else 'red'
+end as color from (
+select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,string_agg(distinct (userkey::text),''::text)::int2 as userkey
 from
 (select hillnumber,classification,feature,hillname,metres,feet,drop,geom from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
 full outer JOIN
-(select *,'blue' as color from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
+(select * from
+((select * from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD') and userkey = 1)  
+UNION ALL
+(select * from dobih.userlog where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD') and userkey = 2)) z1 
+",ascq1,") b 
 using (hillnumber)
-group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
+group by hillnumber,hillname,feature,classification,metres,feet,drop,geom) subq",ascq2,altq,dropq)
                                     
                                     
                                     map_dta <- st_read(dsn=pgconn,query=query)
                                     
                                     query2 <- str_c(
                                       "select * from (
-select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color
+select hillnumber,hillname,classification,feature,metres,feet,drop,geom,min(climbed) as first_asc,count(climbed) as num_asc,COALESCE(color,'red') as color,userkey
 from
 (select hillnumber,classification,feature,hillname,metres,feet,drop from dobih.hills where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"'))) a
 INNER JOIN
-(select *,'blue' as color from dobih.userlog_with_geom_mv where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD')) b 
+((select userkey,hillnumber,date(climbed) as climbed,mydesc,geom,'blue' as color from dobih.userlog_with_geom_mv where hillnumber IN (select hillnumber from dobih.classlink where classref IN ('",str_c(filterhs,collapse="','"),"')) AND climbed between to_date('",daterange[1],"','YYYY-MM-DD') and to_date('",daterange[2],"','YYYY-MM-DD') and userkey = 1)) b 
 using (hillnumber)
-group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color) subq",ascq,altq,dropq)
+group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color,userkey) subq",ascq2,altq,dropq)
                                     
                                     map_dta2 <- st_zm(st_read(dsn=pgconn,query=query2))
                                     

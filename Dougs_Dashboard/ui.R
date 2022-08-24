@@ -224,10 +224,11 @@ navbarPage(windowTitle = "Dougs Data",
                            step=100,
                            value=c(0,1500)),
                checkboxGroupInput("climbed","Ascent Complete:",
-                                  choices=c("Yes" = "yes",
+                                  choices=c("Doug" = "Doug",
+                                            "Rhona" = "Rhona",
                                             "No" = "no"
                                   ),
-                                  selected = c("yes")
+                                  selected = c("Doug")
                ),
               actionButton("rerunhill","Apply Filter/Redraw Map"),
               tableOutput('tbl')
