@@ -555,7 +555,9 @@ query <- str_c(r"(select
                max(cast(strftime('%Y',date('1970-01-01'),'+'||climbed||' days') as INTEGER)) as e_yr
                from "dobih.userlog")")
 
-choice_month_hilq <- dbGetQuery(pgconn,query)
+choice_month_hilq <- dbGetQuery(pgconn,query) %>%
+  mutate(s = date(s),
+         e = date(e))
 
 choices_month_hil <- format(seq.Date(from = choice_month_hilq[1,1],to=choice_month_hilq[1,2], by = "month"), "%b-%Y")
 
