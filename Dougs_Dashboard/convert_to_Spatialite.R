@@ -34,7 +34,7 @@ nonspatial_tables <- c("dobih.hills","dobih.classlink","dobih.userlog","dougtrac
 #spatial:
 for (i in 1:length(spatial_tables)) {
 
-  st_read(pgconn1,layer=spatial_tables[i]) %>% st_write(obj=_,dsn=dsn_val,layer=output_spatial[i],driver = "SQLite")   
+  st_read(pgconn1,layer=spatial_tables[i]) %>% st_write(obj=.,dsn=dsn_val,layer=output_spatial[i],driver = "SQLite")   
 
 }
 
@@ -43,7 +43,7 @@ sqconn1 <- dbConnect(RSQLite::SQLite(),dsn_val)
 #non-spatial:
 for (j in nonspatial_tables) {
 
-  dbGetQuery(pgconn1,paste0("select * from ",j)) %>%  dbWriteTable(conn=sqconn1,name=j,value=_)
+  dbGetQuery(pgconn1,paste0("select * from ",j)) %>%  dbWriteTable(conn=sqconn1,name=j,value=.)
 
 }
 
