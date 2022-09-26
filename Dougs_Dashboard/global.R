@@ -503,12 +503,12 @@ max_yr <- choices_monthq[1,4]
 #                max(extract('year' from end_of_bill_period)::smallint) as e_yr
 #                from utilityusage.electricityusage")
 
-query <- str_c("select 
+query <- str_c(r"(select 
                 min(date(datetime(start_of_bill_period,'unixepoch','utc'))) as s, 
                 date(max(date(datetime(end_of_bill_period,'unixepoch','utc'))), '+30 days') as e,
                 min(cast(strftime('%Y' , datetime(start_of_bill_period,'unixepoch','utc')) as INTEGER)) as s_yr,
                 max(cast(stfrtime('%Y' , datetime(end_of_bill_period,'unixepoch','utc'))  as INTEGER)) as e_yr
-                from utilityusage.electricityusage")
+                from "utilityusage.electricityusage")")
 
 
 choices_monthq_uti <- dbGetQuery(pgconn,query) %>%
