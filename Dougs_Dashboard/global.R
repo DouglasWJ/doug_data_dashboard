@@ -482,7 +482,9 @@ query <- str_c("select
                max(strftime('%Y',datetime(end_time_utc,'unixepoch','utc'))) as e_yr
                from 'dougtracks.dougtracks_lines_emi_mv_nogeom'")
 
-choices_monthq <- dbGetQuery(pgconn,query)
+choices_monthq <- dbGetQuery(pgconn,query) %>%
+  mutate(s = date(s),
+         e = date(e))
 
 choices_month <- format(seq.Date(from = choices_monthq[1,1],to=choices_monthq[1,2], by = "month"), "%b-%Y")
 
@@ -509,7 +511,9 @@ query <- str_c("select
                 from utilityusage.electricityusage")
 
 
-choices_monthq_uti <- dbGetQuery(pgconn,query)
+choices_monthq_uti <- dbGetQuery(pgconn,query) %>%
+  mutate(s = date(s),
+         e = date(e))
 
 choices_month_uti <- format(seq.Date(from = choices_monthq_uti[1,1],to=choices_monthq_uti[1,2], by = "month"), "%b-%Y")
 
@@ -535,7 +539,9 @@ query <- str_c(r'(select
                cast(max(year) as INTEGER) as e_yr
                from "emissions.emissions_daily")')
 
-choices_month_emiq <- dbGetQuery(pgconn,query)
+choices_month_emiq <- dbGetQuery(pgconn,query) %>%
+  mutate(s = date(s),
+         e = date(e))
 
 choices_month_emi <- format(seq.Date(from = choices_month_emiq[1,1],to=choices_month_emiq[1,2], by = "month"), "%b-%Y")
 
