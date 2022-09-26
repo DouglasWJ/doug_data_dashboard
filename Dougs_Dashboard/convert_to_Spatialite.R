@@ -29,8 +29,8 @@ output_spatial <- c("dobih.userlog_with_geom_mv","dougtracks.dougtracks_lines_em
 
 nonspatial_tables <- c("dobih.hills","dobih.classlink","dobih.userlog","dougtracks.dougtracks_lines_emi_mv_nogeom",
                        "utilityusage.dailyusage_emissions","emissions.emissions_daily","dobih.climbed_summary",
-                       "utilityusage.utilityrecordings_smartthings","utilityusage.electricityusage","utilityusage.gasusage",
-                       "emissions.emissions_daily")
+                       "utilityusage.utilityrecordings_smartthings","utilityusage.electricityusage","utilityusage.gasusage"
+                       )
 
 #spatial:
 for (i in 1:length(spatial_tables)) {

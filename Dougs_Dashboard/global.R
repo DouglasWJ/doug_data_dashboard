@@ -468,12 +468,19 @@ reload_gas_data <- function() {
 
 #travel_lines <- reload_map_data()
 
+# query <- str_c("select 
+#                min(start_time_utc)::date as s, 
+#                (max(end_time_utc)::date + '30 days'::interval)::date as e,
+#                min(extract('year' from start_time_utc)::smallint) as s_yr,
+#                max(extract('year' from end_time_utc)::smallint) as e_yr
+#                from dougtracks.dougtracks_lines_emi_mv_nogeom")
+
 query <- str_c("select 
-               min(start_time_utc)::date as s, 
-               (max(end_time_utc)::date + '30 days'::interval)::date as e,
-               min(extract('year' from start_time_utc)::smallint) as s_yr,
-               max(extract('year' from end_time_utc)::smallint) as e_yr
-               from dougtracks.dougtracks_lines_emi_mv_nogeom")
+               min(date(datetime(start_time_utc,'unixepoch','utc'))) as s, 
+               date((max(date(datetime(end_time_utc,'unixepoch','utc')))), '+30 days') as e,
+               min(cast(strftime('%Y',datetime(start_time_utc,'unixepoch','utc')) as INTEGER)) as s_yr,
+               max(strftime('%Y',datetime(end_time_utc,'unixepoch','utc'))) as e_yr
+               from 'dougtracks.dougtracks_lines_emi_mv_nogeom'")
 
 choices_monthq <- dbGetQuery(pgconn,query)
 
@@ -487,12 +494,19 @@ max_yr <- choices_monthq[1,4]
 #elec_emissions_daily <- reload_elec_data()
 #utilities_daily <- reload_daily_data()
 
+# query <- str_c("select 
+#                min(start_of_bill_period)::date as s, 
+#                (max(end_of_bill_period)::date + '30 days'::interval)::date as e,
+#                min(extract('year' from start_of_bill_period)::smallint) as s_yr,
+#                max(extract('year' from end_of_bill_period)::smallint) as e_yr
+#                from utilityusage.electricityusage")
+
 query <- str_c("select 
-               min(start_of_bill_period)::date as s, 
-               (max(end_of_bill_period)::date + '30 days'::interval)::date as e,
-               min(extract('year' from start_of_bill_period)::smallint) as s_yr,
-               max(extract('year' from end_of_bill_period)::smallint) as e_yr
-               from utilityusage.electricityusage")
+                min(date(datetime(start_of_bill_period,'unixepoch','utc'))) as s, 
+                date(max(date(datetime(end_of_bill_period,'unixepoch','utc'))), '+30 days') as e,
+                min(cast(strftime('%Y' , datetime(start_of_bill_period,'unixepoch','utc')) as INTEGER)) as s_yr,
+                max(cast(stfrtime('%Y' , datetime(end_of_bill_period,'unixepoch','utc'))  as INTEGER)) as e_yr
+                from utilityusage.electricityusage")
 
 
 choices_monthq_uti <- dbGetQuery(pgconn,query)
@@ -514,12 +528,12 @@ max_yr_uti <- choices_monthq_uti[1,4]
 #utilities_daily_4merge <- reload_daily_utilities()
 
 
-query <- str_c("select
-               min(day)::date as s,
-               (max(day)::date + '30 days'::interval)::date as e,
-               min(year)::smallint as s_yr,
-               max(year)::smallint as e_yr
-               from emissions.emissions_daily")
+query <- str_c(r'(select
+               min(date(date('1970-01-01'),'+'||day|| ' days')) as s,
+               date(max(date(date('1970-01-01'),'+'||day|| ' days')), "+30 days") as e,
+               cast(min(year) as INTEGER) as s_yr,
+               cast(max(year) as INTEGER) as e_yr
+               from "emissions.emissions_daily")')
 
 choices_month_emiq <- dbGetQuery(pgconn,query)
 
@@ -528,12 +542,12 @@ choices_month_emi <- format(seq.Date(from = choices_month_emiq[1,1],to=choices_m
 min_yr_emi <- choices_month_emiq[1,3]
 max_yr_emi <- choices_month_emiq[1,4]
 
-query <- str_c("select 
-               min(climbed)::date as s,
-               (max(climbed)::date + '30 days'::interval)::date as e,
-               min(extract(year from climbed)) as s_yr,
-               max(extract(year from climbed)) as e_yr
-               from dobih.userlog")
+query <- str_c(r"(select 
+               min(date(date('1970-01-01'),'+'||climbed|| ' days')) as s,
+               date(max(date(date('1970-01-01'),'+'||climbed|| ' days')), '+30 days') as e,
+               min(cast(strftime('%Y',date('1970-01-01'),'+'||climbed||' days') as INTEGER)) as s_yr,
+               max(cast(strftime('%Y',date('1970-01-01'),'+'||climbed||' days') as INTEGER)) as e_yr
+               from "dobih.userlog")")
 
 choice_month_hilq <- dbGetQuery(pgconn,query)
 
