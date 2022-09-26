@@ -13,20 +13,22 @@ library(scales)
 library(htmltools)
 library(leaflet.providers)
 library(leafgl)
+library(RSQLite)
 
 
 units_options(group = c("(", ")") )
 
-pgconn <-
-  dbConnect(
-    RPostgres::Postgres(),
-    dbname = "spatial_db",
-    host = "192.168.1.126",
-    port = 5433,
-    user = "doug"
-  )
-dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage,dobih, public"))
+# pgconn <-
+#   dbConnect(
+#     RPostgres::Postgres(),
+#     dbname = "spatial_db",
+#     host = "192.168.1.126",
+#     port = 5433,
+#     user = "doug"
+#   )
+# dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage,dobih, public"))
 
+pgconn <- dbConnect(RSQLite::SQLite(),"data.db")
 
 #pre-processing:
 #travel:
