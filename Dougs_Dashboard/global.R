@@ -507,7 +507,7 @@ query <- str_c(r"(select
                 min(date(datetime(start_of_bill_period,'unixepoch','utc'))) as s, 
                 date(max(date(datetime(end_of_bill_period,'unixepoch','utc'))), '+30 days') as e,
                 min(cast(strftime('%Y' , datetime(start_of_bill_period,'unixepoch','utc')) as INTEGER)) as s_yr,
-                max(cast(stfrtime('%Y' , datetime(end_of_bill_period,'unixepoch','utc'))  as INTEGER)) as e_yr
+                max(cast(strftime('%Y' , datetime(end_of_bill_period,'unixepoch','utc'))  as INTEGER)) as e_yr
                 from "utilityusage.electricityusage")")
 
 
