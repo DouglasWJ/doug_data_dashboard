@@ -15,8 +15,9 @@ navbarPage(windowTitle = "Dougs Data",
                         ),
                         checkboxGroupInput("utilityfilt","Utility:",
                                            choices=c("Gas" = "gas",
-                                                     "Electricity" = "elec"
-                                           ),selected = c("gas","elec")
+                                                     "Electricity" = "elec",
+                                                     "Logs" = "log"
+                                           ),selected = c("gas","elec","logs")
                         ),
                         radioButtons("usageoremissionsrdo",label="Data:",choices=emissions_graph_types
                         ,selected="usage")
@@ -49,7 +50,8 @@ navbarPage(windowTitle = "Dougs Data",
                                                           "Car",
                                                           "Train",
                                                           "gas_emissions",
-                                                          "elec_emissions")
+                                                          "elec_emissions",
+                                                        "log_emissions")
                         )
                         #,actionButton("updata_emi","Refresh Data Source")
                       ),mainPanel(width=10,id = "emissions_grp",

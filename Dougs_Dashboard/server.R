@@ -905,16 +905,30 @@ group by traveltype_superclass,superclass_colourv,year")
                    name in ('",str_c(filt,collapse="','"),"')
                    group by year,name
                    order by year ASC")
+      print(query)
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
+        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                   (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                   (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                                levels = c('#00999d',
+                                           '#880f07',
+                                           '#5C4033'))) %>%
+        
         mutate(name = factor(name)) %>%
-        mutate(displayname = case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
                                        name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
                                        name == "gas_usage" ~ "Gas Usage (kWh)",
-                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)"
-                                    ))
-      
+                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                       name == "log_usage" ~ "Log Usage (kg)",
+                                       name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+                                    ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                                                 "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                                                 "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+        arrange(year,name) %>%
+        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+        tibble()
+      #print(dat4plot)
       # utilities_annual <- elec_emissions_annual %>%
       #   full_join(gas_emissions_annual) %>%
       #   mutate(gas_usage = replace_na(gas_usage, 0),
@@ -929,9 +943,9 @@ group by traveltype_superclass,superclass_colourv,year")
       
       #dat4plot <- filter(utilities_annual, name %in% c(filt))
       
-      plot_year_uti <- ggplot() +
+      plot_year_uti <- ggplot(data = dat4plot) +
         geom_col(position = grapht,
-                 data = dat4plot,
+                 #data = dat4plot,
                  aes(x = year, y = value, fill = displayname)) +
         #theme(axis.ticks.x=element_blank()) +
         # theme(axis.text.x = element_text(
@@ -945,12 +959,15 @@ group by traveltype_superclass,superclass_colourv,year")
           breaks = seq(min_yr_uti,max_yr_uti),
           labels= levels(factor(seq(min_yr_uti,max_yr_uti)))) + 
         scale_fill_manual(
-          values=dat4plot$colourv
-          #breaks=dat4plot$name,
-          #labels=dat4plot$name
-        ) + guides(fill=guide_legend(title="Source")) +
+        values=levels(dat4plot$colourv)#,
+        #breaks=name,
+        #labels=dat4plot$name
+        ) +
+        #scale_fill_identity(guide="legend",labels=levels(dat4plot$displayname),breaks=rep(levels(dat4plot$colourv),2))
+        guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
         
+        plot(plot_year_uti)
       
       pyear_uti <- ggplotly(plot_year_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
@@ -1005,13 +1022,26 @@ group by traveltype_superclass,superclass_colourv,year")
                    order by year,month ASC")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
+        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                          (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                          (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                                levels = c('#00999d',
+                                           '#880f07',
+                                           '#5C4033'))) %>%
+        
         mutate(name = factor(name)) %>%
-        mutate(displayname = case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
-                                       name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
-                                       name == "gas_usage" ~ "Gas Usage (kWh)",
-                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)"
-        ))
+        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                              name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                              name == "gas_usage" ~ "Gas Usage (kWh)",
+                                              name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                              name == "log_usage" ~ "Log Usage (kg)",
+                                              name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+        ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                     "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                     "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+        arrange(year,name) %>%
+        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+        tibble()
       
       
       plot_month_uti <- ggplot() +
@@ -1033,9 +1063,9 @@ group by traveltype_superclass,superclass_colourv,year")
           #limits=seq(1,12)) 
         ) + 
         scale_fill_manual(
-          values=dat4plot$colourv,
-          breaks=dat4plot$displayname,
-          labels=dat4plot$displayname
+          values=levels(dat4plot$colourv)#,
+          #breaks=dat4plot$displayname,
+          #labels=dat4plot$displayname
         ) + guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
@@ -1096,14 +1126,28 @@ group by traveltype_superclass,superclass_colourv,year")
                    order by isoyear,day ASC")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
-        #mutate(colourv = if_else(name == 'elec_emissions','#00999d','#880f07')) %>%
+        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                          (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                          (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                                levels = c('#00999d',
+                                           '#880f07',
+                                           '#5C4033'))) %>%
+        
         mutate(name = factor(name)) %>%
-        mutate(displayname = case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
-                                       name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
-                                       name == "gas_usage" ~ "Gas Usage (kWh)",
-                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)"
-        ))
+        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                              name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                              name == "gas_usage" ~ "Gas Usage (kWh)",
+                                              name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                              name == "log_usage" ~ "Log Usage (kg)",
+                                              name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+        ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                     "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                     "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+        arrange(isoyear,name) %>%
+        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+        tibble()
+      
+      head(dat4plot)
       
       plot_day_uti <- ggplot() +
         geom_col(
@@ -1116,9 +1160,9 @@ group by traveltype_superclass,superclass_colourv,year")
         facet_wrap( ~ isoyear) +
         ylab(graph_ylabel) +
         scale_fill_manual(
-          values=dat4plot$colourv,
-          breaks=dat4plot$displayname,
-          labels=dat4plot$displayname
+          values=levels(dat4plot$colourv)#,
+          #breaks=dat4plot$displayname,
+          #labels=dat4plot$displayname
         ) + guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
@@ -1180,14 +1224,26 @@ group by traveltype_superclass,superclass_colourv,year")
                    order by isoyear,isoweek ASC")
       
       dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = if_else(name == 'elec_usage' | name == 'elec_emissions','#00999d','#880f07')) %>%
-        #mutate(colourv = if_else(name == 'elec_emissions','#00999d','#880f07')) %>%
+        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                          (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                          (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                                levels = c('#00999d',
+                                           '#880f07',
+                                           '#5C4033'))) %>%
+        
         mutate(name = factor(name)) %>%
-        mutate(displayname = case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
-                                       name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
-                                       name == "gas_usage" ~ "Gas Usage (kWh)",
-                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)"
-        ))
+        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                              name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                              name == "gas_usage" ~ "Gas Usage (kWh)",
+                                              name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                              name == "log_usage" ~ "Log Usage (kg)",
+                                              name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+        ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                     "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                     "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+        arrange(isoyear,name) %>%
+        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+        tibble()
       
       plot_week_uti <- ggplot() +
         geom_col(
@@ -1200,9 +1256,9 @@ group by traveltype_superclass,superclass_colourv,year")
         facet_wrap( ~ isoyear) +
         ylab(graph_ylabel) +
         scale_fill_manual(
-          values=dat4plot$colourv,
-          breaks=dat4plot$displayname,
-          labels=dat4plot$displayname
+          values=levels(dat4plot$colourv)#,
+          #breaks=dat4plot$displayname,
+          #labels=dat4plot$displayname
         ) + guides(fill=guide_legend(title="Source")) +
         theme(legend.position="bottom")
       
