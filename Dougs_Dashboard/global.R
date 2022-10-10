@@ -554,7 +554,8 @@ emissions_filters_types <- c("Aircraft" = "Aircraft",
                              "Car" = "Car",
                              "Train" = "Train",
                              "Gas" = "gas_emissions",
-                             "Electricity" = "elec_emissions"
+                             "Electricity" = "elec_emissions",
+                             "Logs" = 'log_emissions'
 )
 
 emissions_filters_types_df <- rownames_to_column(data.frame(t(data.frame(as.list(emissions_filters_types)))))
