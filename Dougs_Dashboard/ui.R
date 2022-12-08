@@ -132,12 +132,12 @@ navbarPage(windowTitle = "Dougs Data",
                       ),
                       mainPanel(
                         width=10,
-                        leafglOutput("mymap",height=400),
+                        leafglOutput("mymap",height="55vh"),
                         tabsetPanel(
-                          tabPanel(title="Daily",plotlyOutput("daymap",height=400)),
-                          tabPanel(title="Weekly",plotlyOutput("weekmap",height=400)),
-                          tabPanel(title="Monthly",plotlyOutput("monthmap",height=400)),
-                          tabPanel(title="Annual",plotlyOutput("annualmap",height=400))
+                          tabPanel(title="Daily",plotlyOutput("daymap",height="35vh")),
+                          tabPanel(title="Weekly",plotlyOutput("weekmap",height="35vh")),
+                          tabPanel(title="Monthly",plotlyOutput("monthmap",height="35vh")),
+                          tabPanel(title="Annual",plotlyOutput("annualmap",height="35vh"))
                         )
                       )
                     )
