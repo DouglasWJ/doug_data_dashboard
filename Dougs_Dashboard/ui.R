@@ -4,6 +4,80 @@
 navbarPage(windowTitle = "Dougs Data",
            tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #daymap_emi {height: calc(100vh - 120px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} #daymap_uti {height: calc(100vh - 120px) !important;} #weekmap_uti {height: calc(100vh - 120px) !important;} #monthmap_uti {height: calc(100vh - 120px) !important;} #annualmap_uti {height: calc(100vh - 120px) !important;} "),
            
+           tags$style(
+             ".btn-walk {background-color: white; color: black;}",
+             ".btn-electric_skateboard {background-color: white; color: black;}",
+             ".btn-cycling {background-color: white; color: black;}",
+             ".btn-car {background-color: white; color: black;}",
+             ".btn-bus_coach {background-color: white; color: black;}",
+             ".btn-bus_local {background-color: white; color: black;}",
+             ".btn-train {background-color: white; color: black;}",
+             ".btn-canoe {background-color: white; color: black;}",
+             ".btn-boat {background-color: white; color: black;}",
+             ".btn-car_ferry {background-color: white; color: black;}",
+             ".btn-airtrack {background-color: white; color: black;}",
+             ".btn-helicopter {background-color: white; color: black;}",
+             ".btn-plane_dom {background-color: white; color: black;}",
+             ".btn-plane_sh {background-color: white; color: black;}",
+             ".btn-plane_lh {background-color: white; color: black;}",
+             ".btn-plane_int {background-color: white; color: black;}",
+             ".btn-drone {background-color: white; color: black;}",
+             ".btn-none {background-color: white; color: black;}",
+             ".btn-misc {background-color: white; color: black;}",
+             ".btn-walk.active {background-color: #008000; color: white;}",
+             ".btn-electric_skateboard.active {background-color: #00fa9a; color: white;}",
+             ".btn-cycling.active {background-color: #ffa500; color: white;}",
+             ".btn-car.active {background-color: #ff0000; color: white;}",
+             ".btn-bus_coach.active {background-color: #cd5c5c; color: white;}",
+             ".btn-bus_local.active {background-color: #f08080; color: white;}",
+             ".btn-train.active {background-color: #ffd700; color: white;}",
+             ".btn-canoe.active {background-color: #00bfff; color: white;}",
+             ".btn-boat.active {background-color: #00ced1; color: white;}",
+             ".btn-car_ferry.active {background-color: #0000ff; color: white;}",
+             ".btn-airtrack.active {background-color: #000000; color: white;}",
+             ".btn-helicopter.active {background-color: #800080; color: white;}",
+             ".btn-plane_dom.active {background-color: #ba55d3; color: white;}",
+             ".btn-plane_sh.active {background-color: #9370db; color: white;}",
+             ".btn-plane_lh.active {background-color: #9932cc; color: white;}",
+             ".btn-plane_int.active {background-color: #800080; color: white;}",
+             ".btn-drone.active {background-color: #000000; color: white;}",
+             ".btn-none.active {background-color: #ffffff; color: black;}",
+             ".btn-misc.active {background-color: #000000; color: white;}",
+             
+             ".btn-emi-air.active {background-color: #800080; color: white;}",
+             ".btn-emi-boat.active {background-color: #0000ff; color: white;}",
+             ".btn-emi-bus.active {background-color: #cd5c5c; color: white;}",
+             ".btn-emi-car.active {background-color: #ff0000; color: white;}",
+             ".btn-emi-train.active {background-color: #ffd700; color: black;}",
+             ".btn-emi-gas.active {background-color: #00999d; color: white;}",
+             ".btn-emi-elec.active {background-color: #880f07; color: white;}",
+             ".btn-emi-logs.active {background-color: #5C4033; color: white;}",
+             
+             ".btn-emi-air {background-color: white; color: black;}",
+             ".btn-emi-boat {background-color: white; color: black;}",
+             ".btn-emi-bus {background-color: white; color: black;}",
+             ".btn-emi-car {background-color: white; color: black;}",
+             ".btn-emi-train {background-color: white; color: black;}",
+             ".btn-emi-gas {background-color: white; color: black;}",
+             ".btn-emi-elec {background-color: white; color: black;}",
+             ".btn-emi-logs {background-color: white; color: black;}",
+             
+             ".btn-uti-gas.active {background-color: #00999d; color: white;}",
+             ".btn-uti-elec.active {background-color: #880f07; color: white;}",
+             ".btn-uti-logs.active {background-color: #5C4033; color: white;}",
+             
+             ".btn-uti-gas {background-color: white; color: black;}",
+             ".btn-uti-elec {background-color: white; color: black;}",
+             ".btn-uti-logs {background-color: white; color: black;}"
+             
+             
+             
+             
+             
+
+           ),
+           
+           
            tabPanel("Utility Usage",
                     sidebarLayout(
                       sidebarPanel(
@@ -13,13 +87,16 @@ navbarPage(windowTitle = "Dougs Data",
                                         choices = choices_month_uti,
                                         selected = c(choices_month_uti[1],choices_month_uti[length(choices_month_uti)])
                         ),
-                        checkboxGroupInput("utilityfilt","Utility:",
+                        checkboxGroupButtons("utilityfilt","Utility:",
                                            choices=c("Gas" = "gas",
                                                      "Electricity" = "elec",
                                                      "Logs" = "log"
-                                           ),selected = c("gas","elec","logs")
+                                           ),selected = c("gas","elec","logs"),
+                                           status = c("uti-gas",
+                                                      "uti-elec",
+                                                      "uti-logs")
                         ),
-                        radioButtons("usageoremissionsrdo",label="Data:",choices=emissions_graph_types
+                        radioGroupButtons("usageoremissionsrdo",label="Data:",choices=emissions_graph_types
                         ,selected="usage")
                         #,actionButton("updata_uti","Refresh Data Source")
                       ),mainPanel(width=10,
@@ -42,7 +119,7 @@ navbarPage(windowTitle = "Dougs Data",
                                         choices = choices_month_emi,
                                         selected = c(choices_month_emi[1],choices_month_emi[length(choices_month_emi)])
                         ),
-                        checkboxGroupInput("emifilt","Emissions Source:",
+                        checkboxGroupButtons("emifilt","Emissions Source:",
                                            choices=emissions_filters_types,
                                            selected = c("Aircraft",
                                                           "Boat",
@@ -51,7 +128,17 @@ navbarPage(windowTitle = "Dougs Data",
                                                           "Train",
                                                           "gas_emissions",
                                                           "elec_emissions",
-                                                        "log_emissions")
+                                                        "log_emissions"),
+                                           status = c(
+                                             "emi-air",
+                                             "emi-boat",
+                                             "emi-bus",
+                                             "emi-car",
+                                             "emi-train",
+                                             "emi-gas",
+                                             "emi-elec",
+                                             "emi-logs"
+                                           )
                         )
                         #,actionButton("updata_emi","Refresh Data Source")
                       ),mainPanel(width=10,id = "emissions_grp",
@@ -66,7 +153,7 @@ navbarPage(windowTitle = "Dougs Data",
                     sidebarLayout(
                       sidebarPanel(
                         width=2,
-                        checkboxGroupInput("lfilter", "Traveltype Filter",
+                        checkboxGroupButtons("lfilter", "Traveltype Filter",
                                            choices = c(
                                              "Walk" = "Walk",
                                              "Electric Rideable" = "Electric_Skateboard",
@@ -118,7 +205,35 @@ navbarPage(windowTitle = "Dougs Data",
                                              "Plane - Short Haul",
                                              "Plane - Long Haul",
                                              "Plane - International"
-                                           )
+                                           ),
+                                           status = c(
+                                             "walk",
+                                             "electric_skateboard",
+                                             "cycling",
+                                             "car",
+                                             "car",
+                                             "car",
+                                             "car",
+                                             "car",
+                                             "car",
+                                             "car",
+                                             "bus_coach",
+                                             "bus_local",
+                                             "train",
+                                             "train",
+                                             "canoe",
+                                             "boat",
+                                             "car_ferry",
+                                             "airtrack",
+                                             "helicopter",
+                                             "plane_dom",
+                                             "plane_sh",
+                                             "plane_lh",
+                                             "plane_int",
+                                             "drone",
+                                             "none",
+                                             "misc"
+                                           ),
                         ),
                         sliderTextInput(inputId = "dateslide",
                                         label = "Time Filter",
@@ -126,7 +241,7 @@ navbarPage(windowTitle = "Dougs Data",
                                         selected = c(choices_month[1],choices_month[length(choices_month)])
                         ),
                         actionButton("rerun","Apply Filter/Redraw Map"),
-                        radioButtons("graphtype",label="Graph Data:",choices=travel_map_types,
+                        radioGroupButtons("graphtype",label="Graph Data:",choices=travel_map_types,
                                      selected="time_taken")
                         #,actionButton("updata","Refresh Data Source")
                       ),
@@ -151,7 +266,7 @@ navbarPage(windowTitle = "Dougs Data",
                                        choices = choices_month_hil,
                                        selected = c(choices_month_hil[1],choices_month_hil[length(choices_month_hil)])
                ),
-               selectInput("hills","Hill Lists:",
+               pickerInput("hills","Hill Lists:",
                                   choices=c("Marilyn" = "Ma",
 "Marilyn twin-top" = "Ma=",
 "Hump" = "Hu",
@@ -213,6 +328,8 @@ navbarPage(windowTitle = "Dougs Data",
 "Unclassified" = "Un")
                                             
                                   ,selected = c("M"),
+options = pickerOptions(
+  actionsBox = TRUE),
                            multiple=TRUE
                ),
                sliderInput("haltitude","Hill Altitude:",
@@ -225,7 +342,7 @@ navbarPage(windowTitle = "Dougs Data",
                            max=1500,
                            step=100,
                            value=c(0,1500)),
-               checkboxGroupInput("climbed","Ascent Complete:",
+checkboxGroupButtons("climbed","Ascent Complete:",
                                   choices=c("Doug" = "Doug",
                                             "Rhona" = "Rhona",
                                             "No" = "no"
