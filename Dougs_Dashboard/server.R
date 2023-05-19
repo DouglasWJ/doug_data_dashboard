@@ -523,13 +523,16 @@ end_time_utc - start_time_utc as duration,
 extract('doy' from start_time_utc) as day,
 extract('year' from start_time_utc) as isoyear
 from dougtracks.dougtracks_lines_emi_mv_nogeom
+
 where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
+
 ) subq
 group by traveltype_superclass,superclass_colourv,day,isoyear")
       
       travel_stats_day <- dbGetQuery(pgconn,query) %>%
-        rename(`Travel Type` = traveltype)
+        rename(`Travel Type` = traveltype) %>%
+        mutate(Date = strftime(x=as.POSIXlt.character(str_c(isoyear,'-',day),format="%Y-%j"),format='%Y-%m-%d'))
       
       #By Week:
       # travel_stats_week <- map_dta %>%
@@ -550,8 +553,13 @@ group by traveltype_superclass,superclass_colourv,day,isoyear")
       
       graph_ylabel <- names(travel_map_types[travel_map_types==graph_type])
       
+
       plot_day <- ggplot() + 
-        geom_col(data=travel_stats_day,aes_string(x="day",y=graph_type,fill="`Travel Type`")) +
+        geom_col(data=travel_stats_day,aes_string(x="day",
+                                                  y=graph_type,
+                                                  fill="`Travel Type`",
+                                                  label="Date")) +
+        
         facet_wrap(~isoyear,scales="fixed") +
         scale_fill_manual(
           values=travel_stats_day$superclass_colourv,
@@ -603,7 +611,7 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
 group by traveltype_superclass,superclass_colourv,week,isoyear")
       
       travel_stats_week <- dbGetQuery(pgconn,query) %>%
-        rename(`Travel Type` = traveltype)
+        rename(`Travel Type` = traveltype) 
       
       #By Week:
       # travel_stats_week <- map_dta %>%
@@ -674,7 +682,7 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
 group by traveltype_superclass,superclass_colourv,month,year")
       
       travel_stats_month <- dbGetQuery(pgconn,query) %>%
-        rename(`Travel Type` = traveltype)
+        rename(`Travel Type` = traveltype) 
       
       graph_type <- get_graphtype()
       
@@ -1146,6 +1154,7 @@ group by traveltype_superclass,superclass_colourv,year")
                      "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
         arrange(isoyear,name) %>%
         mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+        mutate(Date = strftime(x=as.POSIXlt.character(str_c(isoyear,'-',day),format="%Y-%j"),format='%Y-%m-%d')) %>%
         tibble()
       
       head(dat4plot)
@@ -1154,7 +1163,7 @@ group by traveltype_superclass,superclass_colourv,year")
         geom_col(
           position = grapht,
           data = dat4plot,
-          aes(x = day, y = value, fill = displayname)
+          aes(x = day, y = value, fill = displayname,label=Date)
         ) +
         theme(axis.text.x = element_blank(),
               axis.ticks.x = element_blank()) +
@@ -1331,9 +1340,10 @@ group by traveltype_superclass,superclass_colourv,year")
       
       day_emissions_data <- dbGetQuery(pgconn,query)
       
-      day_emissions_data <- left_join(day_emissions_data,emissions_filters_types_df)
+      day_emissions_data <- left_join(day_emissions_data,emissions_filters_types_df) %>%
+        mutate(Date = strftime(x=as.POSIXlt.character(str_c(isoyear,'-',day),format="%Y-%j"),format='%Y-%m-%d'))
       
-      ordering <- day_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
+      ordering <- day_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname) 
       
       #print(names(weekly_emissions_data))
       
@@ -1341,7 +1351,7 @@ group by traveltype_superclass,superclass_colourv,year")
         geom_col(
           position = "stack",
           data = day_emissions_data,
-          aes(x = day, y = value, fill = factor(displayname,levels=ordering))
+          aes(x = day, y = value, fill = factor(displayname,levels=ordering),labels=Date)
         ) +
         theme(axis.text.x = element_blank(),
               axis.ticks.x=element_blank()) +
