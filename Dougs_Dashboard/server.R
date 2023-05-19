@@ -1345,13 +1345,17 @@ group by traveltype_superclass,superclass_colourv,year")
       
       ordering <- day_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname) 
       
+      day_emissions_data <-  day_emissions_data %>%
+        mutate(displayname = factor(displayname,levels=ordering))
+      
+      
       #print(names(weekly_emissions_data))
       
       plot_day_emi <- ggplot() +
         geom_col(
           position = "stack",
           data = day_emissions_data,
-          aes(x = day, y = value, fill = factor(displayname,levels=ordering),labels=Date)
+          aes(x = day, y = value, fill = displayname,labels=Date)
         ) +
         theme(axis.text.x = element_blank(),
               axis.ticks.x=element_blank()) +
@@ -1403,13 +1407,16 @@ group by traveltype_superclass,superclass_colourv,year")
       
       ordering <- weekly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
       
+      weekly_emissions_data <- weekly_emissions_data %>%
+        mutate(displayname = factor(displayname,levels=ordering))
+      
       #print(names(weekly_emissions_data))
       
       plot_week_emi <- ggplot() +
         geom_col(
           position = "stack",
           data = weekly_emissions_data,
-          aes(x = isoweek, y = value, fill = factor(displayname,levels=ordering))
+          aes(x = isoweek, y = value, fill = displayname)
         ) +
         theme(axis.text.x = element_blank(),
               axis.ticks.x=element_blank()) +
@@ -1458,11 +1465,15 @@ group by traveltype_superclass,superclass_colourv,year")
       
       ordering <- monthly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
       
+      monthly_emissions_data <- monthly_emissions_data %>%
+        mutate(displayname = factor(displayname,levels=ordering))
+      
+      
       plot_month_emi <- ggplot() +
         geom_col(
           position = "stack",
           data = monthly_emissions_data,
-          aes(x = month, y = value, fill = factor(displayname,levels=ordering))
+          aes(x = month, y = value, fill = displayname)
         ) +
         theme(axis.text.x = element_text(
           angle = 90,
@@ -1515,15 +1526,19 @@ group by traveltype_superclass,superclass_colourv,year")
       
       annual_emissions_data <- dbGetQuery(pgconn,query)
       
-      annual_emissions_data <- left_join(annual_emissions_data,emissions_filters_types_df)
+      annual_emissions_data <- left_join(annual_emissions_data,emissions_filters_types_df) 
       
       ordering <- annual_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
+      
+      annual_emissions_data <- annual_emissions_data %>%
+        mutate(displayname = factor(displayname,levels=ordering))
       
       plot_year_emi <- ggplot() +
         geom_col(
           position = "stack",
           data = annual_emissions_data,
-          aes(x = year, y = value, fill = factor(displayname,levels=ordering))
+          #aes(x = year, y = value, fill = factor(displayname,levels=ordering))
+          aes(x = year, y = value, fill = displayname)
         ) +
         #theme(axis.text.x = element_blank()) +
         #facet_wrap( ~ year) + 
