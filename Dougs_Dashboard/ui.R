@@ -94,7 +94,8 @@ navbarPage(windowTitle = "Dougs Data",
                         sliderTextInput(inputId = "dateslide_uti",
                                         label = "Time Filter",
                                         choices = choices_month_uti,
-                                        selected = c(choices_month_uti[1],choices_month_uti[length(choices_month_uti)])
+                                        #selected = c(choices_month_uti[1],choices_month_uti[length(choices_month_uti)])
+                                        selected = c(str_c("Jan-",max_yr_uti),choices_month_uti[length(choices_month_uti)])
                         ),
                         checkboxGroupButtons("utilityfilt","Utility:",
                                            choices=c("Gas" = "gas",
@@ -126,7 +127,7 @@ navbarPage(windowTitle = "Dougs Data",
                         sliderTextInput(inputId = "dateslide_emi",
                                         label = "Time Filter",
                                         choices = choices_month_emi,
-                                        selected = c(choices_month_emi[1],choices_month_emi[length(choices_month_emi)])
+                                        selected = c(str_c("Jan-",max_yr_emi),choices_month_emi[length(choices_month_emi)])
                         ),
                         checkboxGroupButtons("emifilt","Emissions Source:",
                                            choices=emissions_filters_types,
@@ -247,7 +248,7 @@ navbarPage(windowTitle = "Dougs Data",
                         sliderTextInput(inputId = "dateslide",
                                         label = "Time Filter",
                                         choices = choices_month,
-                                        selected = c(choices_month[1],choices_month[length(choices_month)])
+                                        selected = c(str_c("Jan-",max_yr),choices_month[length(choices_month)])
                         ),
                         actionButton("rerun","Apply Filter/Redraw Map"),
                         radioGroupButtons("graphtype",label="Graph Data:",choices=travel_map_types,

@@ -813,7 +813,8 @@ group by traveltype_superclass,superclass_colourv,year")
       #daterange <- get_daterange()
       #map_dta <- filter(travel_lines,traveltype %in% filtervs & start_time_utc >= daterange[1] & end_time_utc <= daterange[2])
       
-      query <- str_c("select colourv,geom,traveltype,start_time_utc,start_time_local,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2")
+      query <- str_c("select colourv,geom,traveltype,start_time_utc,start_time_local,time_taken,length2d_km,kg_all_co2e from dougtracks.dougtracks_lines_emi_mv_simple2
+                     where start_time_utc >= to_date('",max_yr,"-01-01','YYYY-MM-DD')")
                      #where traveltype = 'Walk'")
       
       map_dta <- st_read(dsn=pgconn,query=query)
