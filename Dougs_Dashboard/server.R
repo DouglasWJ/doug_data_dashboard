@@ -1280,8 +1280,8 @@ group by traveltype_superclass,superclass_colourv,year")
       
       minute_elec_day <- reload_elec_data()
       
-      plot5min <- ggplot() + 
-        geom_col(data=minute_elec_day,aes(x=time,y=unaccum),fill='#00999d') +
+      plot30min <- ggplot() + 
+        geom_col(data=minute_elec_day,aes(x=time,y=value),fill='#00999d') +
         facet_wrap(~day,scales="free_x") +
         theme(axis.text.x=element_text(angle = 30,vjust=3,hjust=1),axis.title.y=element_blank(),axis.title.x=element_blank()) +
         #ylab("kWh over 5 min intervals") + 
@@ -1289,7 +1289,7 @@ group by traveltype_superclass,superclass_colourv,year")
         scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London")) +
         scale_y_continuous(labels = scales::number_format(accuracy=0.1)) 
       
-      plot5minplotly <- ggplotly(plot5min)
+      plot30minplotly <- ggplotly(plot30min)
     })
   
   output$daily_week_gas <- renderPlotly(
@@ -1297,8 +1297,8 @@ group by traveltype_superclass,superclass_colourv,year")
       
       minute_gas_day <- reload_gas_data()
       
-      plot5min <- ggplot() + 
-        geom_col(data=minute_gas_day,aes(x=time,y=unaccum),fill='#880f07') +
+      plot30min <- ggplot() + 
+        geom_col(data=minute_gas_day,aes(x=time,y=value),fill='#880f07') +
         facet_wrap(~day,scales="free_x") +
         theme(axis.text.x=element_text(angle = 30,vjust=3,hjust=1),axis.title.y=element_blank(),axis.title.x=element_blank()) +
         #ylab("kWh over 30 min intervals") + 
@@ -1306,7 +1306,7 @@ group by traveltype_superclass,superclass_colourv,year")
         scale_x_datetime(labels = time_format(format="%H:%M",tz="Europe/London")) +
         scale_y_continuous(labels = scales::number_format(accuracy=0.1))
       
-      plot5minplotly <- ggplotly(plot5min)
+      plot30minplotly <- ggplotly(plot30min)
     })
   
   output$daymap_emi <- renderPlotly(

@@ -30,7 +30,7 @@ dbExecute(pgconn,paste0("SET search_path = dougtracks,emissions,utilityusage,dob
 
 reload_elec_data <- function() {
   
-  minquery <- str_c("select time,utility,value from utilityusage.utilityrecordings_smartthings where 
+  minquery <- str_c("select time,utility,value from utilityusage.utilityusage_30min where 
                     utility = 'energy' AND
                     time >= (CURRENT_DATE - 2)")
   #startd <- today() - 5
@@ -38,15 +38,15 @@ reload_elec_data <- function() {
   
   minute_elec_day <- dbGetQuery(pgconn,minquery) %>%
     as_tibble() %>%
-    mutate(timecut = cut(.$time, breaks = "5 min",right=FALSE)) %>%
+    #mutate(timecut = cut(.$time, breaks = "30 min",right=FALSE)) %>%
     #filter(time < today() & time > ymd(20200715)) %>%
     #filter(time > startd) %>%
-    group_by(timecut) %>%
+    group_by(time) %>%
     summarise(value=max(value)) %>%
     #rename(minute = `lubridate::minute(time)`) %>%
     mutate(unaccum = across(.cols=c(value), ~ .-c(0,lag(.)[-1]))) %>%
     mutate(unaccum = .$unaccum$value) %>%
-    mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Etc/GMT") - 2.5*60) %>%
+    #mutate(time = as.POSIXlt(time,format='%F %X',tz="Etc/GMT") - 2.5*60) %>%
     mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
     mutate(colourv = '#00999d') %>%
     #filter(time >= dayfilt & time <= dayfilt+1) %>%
@@ -58,25 +58,25 @@ reload_elec_data <- function() {
 
 reload_gas_data <- function() {
   
-  minquery <- str_c("select time,utility,value from utilityusage.utilityrecordings_smartthings where 
+  minquery <- str_c("select time,utility,value from utilityusage.utilityusage_30min where utility = 'gasMeter' AND
                     time >= (CURRENT_DATE - 2)")
   #startd <- today() - 5
   #utility = 'gasMeter' AND
   
   minute_gas_day <- dbGetQuery(pgconn,minquery) %>%
     as_tibble() %>%
-    mutate(timecut = cut(.$time, breaks = "30 min",right=FALSE)) %>%
-    mutate(value2 = if_else(utility == 'gasMeter',value,0)) %>%
+    #mutate(timecut = cut(.$time, breaks = "30 min",right=FALSE)) %>%
+    #mutate(value2 = if_else(utility == 'gasMeter',value,0)) %>%
     #filter(time < today() & time > ymd(20200715)) %>%
     #filter(time > startd) %>%
-    group_by(timecut) %>%
-    summarise(value=max(value2)) %>%
+    group_by(time) %>%
+    summarise(value=max(value)) %>%
     #rename(minute = `lubridate::minute(time)`) %>%
-    mutate(unaccum = across(.cols=c(value), ~ .-c(0,lag(.)[-1]))) %>%
-    mutate(unaccum = .$unaccum$value) %>%
-    mutate(unaccum = if_else(value == unaccum,0,unaccum)) %>%
-    mutate(unaccum = if_else(unaccum <= 0,0,unaccum)) %>%
-    mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Etc/GMT") - 15*60) %>%
+    #mutate(unaccum = across(.cols=c(value), ~ .-c(0,lag(.)[-1]))) %>%
+    #mutate(unaccum = .$unaccum$value) %>%
+    #mutate(unaccum = if_else(value == unaccum,0,unaccum)) %>%
+    #mutate(unaccum = if_else(unaccum <= 0,0,unaccum)) %>%
+    #mutate(time = as.POSIXlt(timecut,format='%F %X',tz="Etc/GMT") - 15*60) %>%
     mutate(day = as.Date(substr(as.character(.$time),1,10),format="%F")) %>%
     mutate(colourv = '#880f07') %>%
     #filter(time >= dayfilt & time <= dayfilt+1) %>%

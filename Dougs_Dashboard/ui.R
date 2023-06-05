@@ -2,7 +2,7 @@
 
 
 navbarPage(windowTitle = "Dougs Data",
-           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #daymap_emi {height: calc(100vh - 120px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} #daymap_uti {height: calc(100vh - 120px) !important;} #weekmap_uti {height: calc(100vh - 120px) !important;} #monthmap_uti {height: calc(100vh - 120px) !important;} #annualmap_uti {height: calc(100vh - 120px) !important;} "),
+           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #daymap_emi {height: calc(100vh - 120px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} #daily_week_elec {height: calc(25vh - 30px) !important;} #daily_week_gas {height: calc(25vh - 30px) !important;} #daymap_uti {height: calc(50vh - 60px) !important;} #weekmap_uti {height: calc(50vh - 60px) !important;} #monthmap_uti {height: calc(50vh - 60px) !important;} #annualmap_uti {height: calc(50vh - 60px) !important;} "),
            
            tags$style(
              ".btn-walk {background-color: white; color: black;}",
@@ -111,14 +111,14 @@ navbarPage(windowTitle = "Dougs Data",
                         #,actionButton("updata_uti","Refresh Data Source")
                       ),mainPanel(width=10,
                                   tabsetPanel(
-                                    tabPanel(title="Daily",plotlyOutput("daymap_uti",height="100%")),
-                                    tabPanel(title="Weekly",plotlyOutput("weekmap_uti",height="100%")),
-                                    tabPanel(title="Monthly",plotlyOutput("monthmap_uti",height="100%")),
-                                    tabPanel(title="Annual",plotlyOutput("annualmap_uti",height="100%"))
+                                    tabPanel(title="Daily",plotlyOutput("daymap_uti",height="50%")),
+                                    tabPanel(title="Weekly",plotlyOutput("weekmap_uti",height="50%")),
+                                    tabPanel(title="Monthly",plotlyOutput("monthmap_uti",height="50%")),
+                                    tabPanel(title="Annual",plotlyOutput("annualmap_uti",height="50%"))
                                   )
-                                  #,h4("Utility usage over the last 3 days:"),
-                                  #plotlyOutput("daily_week_elec",height=200),
-                                  #plotlyOutput("daily_week_gas",height=200)
+                                  ,h4("Utility usage over the last 3 days:"),
+                                  plotlyOutput("daily_week_elec",height="50%"),
+                                  plotlyOutput("daily_week_gas",height="50%")
                       ))),
            tabPanel("Emissions",
                     sidebarLayout(
