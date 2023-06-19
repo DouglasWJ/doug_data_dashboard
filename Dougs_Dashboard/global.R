@@ -32,7 +32,7 @@ reload_elec_data <- function() {
   
   minquery <- str_c("select time,utility,value from utilityusage.utilityusage_30min where 
                     utility = 'energy' AND
-                    time >= (CURRENT_DATE - 2)")
+                    time >= (CURRENT_DATE - 4)")
   #startd <- today() - 5
   #
   
@@ -59,7 +59,7 @@ reload_elec_data <- function() {
 reload_gas_data <- function() {
   
   minquery <- str_c("select time,utility,value from utilityusage.utilityusage_30min where utility = 'gasMeter' AND
-                    time >= (CURRENT_DATE - 2)")
+                    time >= (CURRENT_DATE - 4)")
   #startd <- today() - 5
   #utility = 'gasMeter' AND
   

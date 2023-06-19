@@ -2,7 +2,7 @@
 
 
 navbarPage(windowTitle = "Dougs Data",
-           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #daymap_emi {height: calc(100vh - 120px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} #daily_week_elec {height: calc(25vh - 30px) !important;} #daily_week_gas {height: calc(25vh - 30px) !important;} #daymap_uti {height: calc(50vh - 60px) !important;} #weekmap_uti {height: calc(50vh - 60px) !important;} #monthmap_uti {height: calc(50vh - 60px) !important;} #annualmap_uti {height: calc(50vh - 60px) !important;} "),
+           tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #daymap_emi {height: calc(100vh - 120px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} #daily_week_elec {height: calc(25vh - 30px) !important;} #daily_week_gas {height: calc(25vh - 30px) !important;} #daymap_uti {height: calc(45vh - 60px) !important;} #weekmap_uti {height: calc(45vh - 60px) !important;} #monthmap_uti {height: calc(45vh - 60px) !important;} #annualmap_uti {height: calc(50vh - 60px) !important;} "),
            
            tags$style(
              ".btn-walk {background-color: white; color: black;}",
@@ -62,8 +62,8 @@ navbarPage(windowTitle = "Dougs Data",
              ".btn-emi-elec {background-color: white; color: black;}",
              ".btn-emi-logs {background-color: white; color: black;}",
              
-             ".btn-uti-gas.active {background-color: #00999d; color: white;}",
-             ".btn-uti-elec.active {background-color: #880f07; color: white;}",
+             ".btn-uti-gas.active {background-color: #880f07; color: white;}",
+             ".btn-uti-elec.active {background-color:  #00999d; color: white;}",
              ".btn-uti-logs.active {background-color: #5C4033; color: white;}",
              
              ".btn-uti-gas {background-color: white; color: black;}",
