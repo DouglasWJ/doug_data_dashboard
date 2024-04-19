@@ -108,7 +108,7 @@ navbarPage(windowTitle = "Dougs Data",
                         ),
                         radioGroupButtons("usageoremissionsrdo",label="Data:",choices=emissions_graph_types
                         ,selected="usage")
-                        #,actionButton("updata_uti","Refresh Data Source")
+                        ,actionButton("update_uti","Refresh Data Source")
                       ),mainPanel(width=10,
                                   tabsetPanel(
                                     tabPanel(title="Daily",plotlyOutput("daymap_uti",height="50%")),
@@ -150,7 +150,7 @@ navbarPage(windowTitle = "Dougs Data",
                                              "emi-logs"
                                            )
                         )
-                        #,actionButton("updata_emi","Refresh Data Source")
+                        ,actionButton("update_emi","Refresh Data Source")
                       ),mainPanel(width=10,id = "emissions_grp",
                                   tabsetPanel(
                                     tabPanel(title="Daily",plotlyOutput("daymap_emi",height="100%")),

@@ -877,254 +877,270 @@ group by traveltype_superclass,superclass_colourv,year")
       
     })
   
-  output$annualmap_uti <- renderPlotly(
-    {
-      
-      #elec_emissions_daily <- reload_elec_data()
-      #gas_emissions_daily <- reload_gas_data()
-      
-      daterange_uti <- get_daterange_uti()
-      emiuseuti <- get_usageoremi()
-      
-      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
-      
-      filtuti <- get_utilityfilt()
-      
-      filt <- str_c(filtuti, "_", emiuseuti)
-      
-      if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
-      
-      # elec_emissions_annual <- elec_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(year) %>%
-      #   summarise(elec_emissions = sum(elec_emissions),
-      #             elec_usage = sum(elec_usage))
-      # 
-      # gas_emissions_annual <- gas_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(year) %>%
-      #   summarise(gas_emissions = sum(gas_emissions),
-      #             gas_usage = sum(gas_usage))
-      
-      query <- str_c("select year,name,sum(value) as value from utilityusage.dailyusage_emissions
+  
+  
+  render_uti_year <- eventReactive(input$update_uti, 
+                                   {
+                                     
+                                     #elec_emissions_daily <- reload_elec_data()
+                                     #gas_emissions_daily <- reload_gas_data()
+                                     
+                                     daterange_uti <- get_daterange_uti()
+                                     emiuseuti <- get_usageoremi()
+                                     
+                                     graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
+                                     
+                                     filtuti <- get_utilityfilt()
+                                     
+                                     filt <- str_c(filtuti, "_", emiuseuti)
+                                     
+                                     if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
+                                     
+                                     # elec_emissions_annual <- elec_emissions_daily %>%
+                                     #   filter(adate >= daterange_uti[1] &
+                                     #            adate <= daterange_uti[2]) %>%
+                                     #   group_by(year) %>%
+                                     #   summarise(elec_emissions = sum(elec_emissions),
+                                     #             elec_usage = sum(elec_usage))
+                                     # 
+                                     # gas_emissions_annual <- gas_emissions_daily %>%
+                                     #   filter(adate >= daterange_uti[1] &
+                                     #            adate <= daterange_uti[2]) %>%
+                                     #   group_by(year) %>%
+                                     #   summarise(gas_emissions = sum(gas_emissions),
+                                     #             gas_usage = sum(gas_usage))
+                                     
+                                     query <- str_c("select year,name,sum(value) as value from utilityusage.dailyusage_emissions
     
                    where day >= to_date('",daterange_uti[1],"','YYYY-MM-DD') and day <= to_date('",daterange_uti[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(filt,collapse="','"),"')
                    group by year,name
                    order by year ASC")
-      print(query)
-      
-      dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
-                                   (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
-                                   (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
-                                levels = c('#00999d',
-                                           '#880f07',
-                                           '#5C4033'))) %>%
-        
-        mutate(name = factor(name)) %>%
-        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
-                                       name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
-                                       name == "gas_usage" ~ "Gas Usage (kWh)",
-                                       name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
-                                       name == "log_usage" ~ "Log Usage (kg)",
-                                       name == "log_emissions" ~ "Log Emissions (kg CO2e)"
-                                    ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
-                                                 "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
-                                                 "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
-        arrange(year,name) %>%
-        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
-        tibble()
-      #print(dat4plot)
-      # utilities_annual <- elec_emissions_annual %>%
-      #   full_join(gas_emissions_annual) %>%
-      #   mutate(gas_usage = replace_na(gas_usage, 0),
-      #          gas_emissions = replace_na(gas_emissions, 0)) %>%
-      #   pivot_longer(cols = c(
-      #     "elec_usage",
-      #     "gas_usage",
-      #     "elec_emissions",
-      #     "gas_emissions"
-      #   )) %>%
-      #   mutate(name = factor(name))
-      
-      #dat4plot <- filter(utilities_annual, name %in% c(filt))
-      
-      plot_year_uti <- ggplot(data = dat4plot) +
-        geom_col(position = grapht,
-                 #data = dat4plot,
-                 aes(x = year, y = value, fill = displayname)) +
-        #theme(axis.ticks.x=element_blank()) +
-        # theme(axis.text.x = element_text(
-        #   angle = 90,
-        #   vjust = 0.5,
-        #   hjust = 1
-        # ))+
-        ylab(graph_ylabel)  +
-        #scale_fill_manual(values = c("#b53737","#7ef9ff"))
-        scale_x_continuous(
-          breaks = seq(min_yr_uti,max_yr_uti),
-          labels= levels(factor(seq(min_yr_uti,max_yr_uti)))) + 
-        scale_fill_manual(
-        values=levels(dat4plot$colourv)#,
-        #breaks=name,
-        #labels=dat4plot$name
-        ) +
-        #scale_fill_identity(guide="legend",labels=levels(dat4plot$displayname),breaks=rep(levels(dat4plot$colourv),2))
-        guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-        
-        plot(plot_year_uti)
-      
-      pyear_uti <- ggplotly(plot_year_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-    })
+                                     print(query)
+                                     
+                                     dat4plot <- dbGetQuery(pgconn,query) %>%
+                                       mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                                                         (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                                                         (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                                                               levels = c('#00999d',
+                                                                          '#880f07',
+                                                                          '#5C4033'))) %>%
+                                       
+                                       mutate(name = factor(name)) %>%
+                                       mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                                                             name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                                                             name == "gas_usage" ~ "Gas Usage (kWh)",
+                                                                             name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                                                             name == "log_usage" ~ "Log Usage (kg)",
+                                                                             name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+                                       ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                                                    "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                                                    "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+                                       arrange(year,name) %>%
+                                       mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+                                       tibble()
+                                     #print(dat4plot)
+                                     # utilities_annual <- elec_emissions_annual %>%
+                                     #   full_join(gas_emissions_annual) %>%
+                                     #   mutate(gas_usage = replace_na(gas_usage, 0),
+                                     #          gas_emissions = replace_na(gas_emissions, 0)) %>%
+                                     #   pivot_longer(cols = c(
+                                     #     "elec_usage",
+                                     #     "gas_usage",
+                                     #     "elec_emissions",
+                                     #     "gas_emissions"
+                                     #   )) %>%
+                                     #   mutate(name = factor(name))
+                                     
+                                     #dat4plot <- filter(utilities_annual, name %in% c(filt))
+                                     
+                                     plot_year_uti <- ggplot(data = dat4plot) +
+                                       geom_col(position = grapht,
+                                                #data = dat4plot,
+                                                aes(x = year, y = value, fill = displayname)) +
+                                       #theme(axis.ticks.x=element_blank()) +
+                                       # theme(axis.text.x = element_text(
+                                       #   angle = 90,
+                                       #   vjust = 0.5,
+                                       #   hjust = 1
+                                       # ))+
+                                       ylab(graph_ylabel)  +
+                                       #scale_fill_manual(values = c("#b53737","#7ef9ff"))
+                                       scale_x_continuous(
+                                         breaks = seq(min_yr_uti,max_yr_uti),
+                                         labels= levels(factor(seq(min_yr_uti,max_yr_uti)))) + 
+                                       scale_fill_manual(
+                                         values=levels(dat4plot$colourv)#,
+                                         #breaks=name,
+                                         #labels=dat4plot$name
+                                       ) +
+                                       #scale_fill_identity(guide="legend",labels=levels(dat4plot$displayname),breaks=rep(levels(dat4plot$colourv),2))
+                                       guides(fill=guide_legend(title="Source")) +
+                                       theme(legend.position="bottom")
+                                     
+                                     plot(plot_year_uti)
+                                     
+                                     pyear_uti <- ggplotly(plot_year_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+                                     
+                                     return(pyear_uti)
+                                   },
+                                   ignoreNULL=FALSE
+                                   
+                                       )
+  output$annualmap_uti <- renderPlotly(
+    render_uti_year()
+  )
   
-  output$monthmap_uti <- renderPlotly(
-    {
-      
-      #elec_emissions_daily <- reload_elec_data()
-      #gas_emissions_daily <- reload_gas_data()
-      
-      daterange_uti <- get_daterange_uti()
-      emiuseuti <- get_usageoremi()
-      
-      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
-      
-      filtuti <- get_utilityfilt()
-      
-      filt <- str_c(filtuti, "_", emiuseuti)
-      
-      if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
-      
-      # elec_emissions_monthly <- elec_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(month) %>%
-      #   summarise(elec_emissions = sum(elec_emissions),
-      #             elec_usage = sum(elec_usage))
-      # 
-      # gas_emissions_monthly <- gas_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(month) %>%
-      #   summarise(gas_emissions = sum(gas_emissions),
-      #             gas_usage = sum(gas_usage))
-      # 
-      # utilities_monthly <- elec_emissions_monthly %>%
-      #   full_join(gas_emissions_monthly) %>%
-      #   mutate(gas_usage = replace_na(gas_usage,0),
-      #          gas_emissions = replace_na(gas_emissions,0)) %>%
-      #   pivot_longer(cols = c("elec_usage","gas_usage","elec_emissions","gas_emissions")) %>%
-      #   mutate(year = substr(month,1,4),
-      #          month = as.numeric(substr(month,6,7)),
-      #          name = factor(name))
-      # 
-      # dat4plot <- filter(utilities_monthly, name %in% c(filt))
-      
-      query <- str_c("select year,month,name,sum(value) as value from utilityusage.dailyusage_emissions
+  render_uti_month <- eventReactive(input$update_uti,
+                                    {
+                                      
+                                      #elec_emissions_daily <- reload_elec_data()
+                                      #gas_emissions_daily <- reload_gas_data()
+                                      
+                                      daterange_uti <- get_daterange_uti()
+                                      emiuseuti <- get_usageoremi()
+                                      
+                                      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
+                                      
+                                      filtuti <- get_utilityfilt()
+                                      
+                                      filt <- str_c(filtuti, "_", emiuseuti)
+                                      
+                                      if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
+                                      
+                                      # elec_emissions_monthly <- elec_emissions_daily %>%
+                                      #   filter(adate >= daterange_uti[1] &
+                                      #            adate <= daterange_uti[2]) %>%
+                                      #   group_by(month) %>%
+                                      #   summarise(elec_emissions = sum(elec_emissions),
+                                      #             elec_usage = sum(elec_usage))
+                                      # 
+                                      # gas_emissions_monthly <- gas_emissions_daily %>%
+                                      #   filter(adate >= daterange_uti[1] &
+                                      #            adate <= daterange_uti[2]) %>%
+                                      #   group_by(month) %>%
+                                      #   summarise(gas_emissions = sum(gas_emissions),
+                                      #             gas_usage = sum(gas_usage))
+                                      # 
+                                      # utilities_monthly <- elec_emissions_monthly %>%
+                                      #   full_join(gas_emissions_monthly) %>%
+                                      #   mutate(gas_usage = replace_na(gas_usage,0),
+                                      #          gas_emissions = replace_na(gas_emissions,0)) %>%
+                                      #   pivot_longer(cols = c("elec_usage","gas_usage","elec_emissions","gas_emissions")) %>%
+                                      #   mutate(year = substr(month,1,4),
+                                      #          month = as.numeric(substr(month,6,7)),
+                                      #          name = factor(name))
+                                      # 
+                                      # dat4plot <- filter(utilities_monthly, name %in% c(filt))
+                                      
+                                      query <- str_c("select year,month,name,sum(value) as value from utilityusage.dailyusage_emissions
     
                    where day >= to_date('",daterange_uti[1],"','YYYY-MM-DD') and day <= to_date('",daterange_uti[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(filt,collapse="','"),"')
                    group by year,month,name
                    order by year,month ASC")
-      
-      dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
-                                          (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
-                                          (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
-                                levels = c('#00999d',
-                                           '#880f07',
-                                           '#5C4033'))) %>%
-        
-        mutate(name = factor(name)) %>%
-        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
-                                              name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
-                                              name == "gas_usage" ~ "Gas Usage (kWh)",
-                                              name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
-                                              name == "log_usage" ~ "Log Usage (kg)",
-                                              name == "log_emissions" ~ "Log Emissions (kg CO2e)"
-        ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
-                     "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
-                     "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
-        arrange(year,name) %>%
-        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
-        tibble()
-      
-      
-      plot_month_uti <- ggplot() +
-        geom_col(
-          position = grapht,
-          data = dat4plot,
-          aes(x = month, y = value, fill = displayname)
-        ) +
-        theme(axis.text.x = element_text(
-          angle = 90,
-          vjust = 0.5,
-          hjust = 1
-        )) +
-        facet_wrap( ~ year) +
-        ylab(graph_ylabel) +
-        scale_x_continuous(
-          breaks = seq(1,12),
-          labels= levels(factor(seq(1,12)))
-          #limits=seq(1,12)) 
-        ) + 
-        scale_fill_manual(
-          values=levels(dat4plot$colourv)#,
-          #breaks=dat4plot$displayname,
-          #labels=dat4plot$displayname
-        ) + guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-      
-      pmonth_uti <- ggplotly(plot_month_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-    })
+                                      
+                                      dat4plot <- dbGetQuery(pgconn,query) %>%
+                                        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                                                          (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                                                          (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                                                                levels = c('#00999d',
+                                                                           '#880f07',
+                                                                           '#5C4033'))) %>%
+                                        
+                                        mutate(name = factor(name)) %>%
+                                        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                                                              name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                                                              name == "gas_usage" ~ "Gas Usage (kWh)",
+                                                                              name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                                                              name == "log_usage" ~ "Log Usage (kg)",
+                                                                              name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+                                        ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                                                     "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                                                     "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+                                        arrange(year,name) %>%
+                                        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+                                        tibble()
+                                      
+                                      
+                                      plot_month_uti <- ggplot() +
+                                        geom_col(
+                                          position = grapht,
+                                          data = dat4plot,
+                                          aes(x = month, y = value, fill = displayname)
+                                        ) +
+                                        theme(axis.text.x = element_text(
+                                          angle = 90,
+                                          vjust = 0.5,
+                                          hjust = 1
+                                        )) +
+                                        facet_wrap( ~ year) +
+                                        ylab(graph_ylabel) +
+                                        scale_x_continuous(
+                                          breaks = seq(1,12),
+                                          labels= levels(factor(seq(1,12)))
+                                          #limits=seq(1,12)) 
+                                        ) + 
+                                        scale_fill_manual(
+                                          values=levels(dat4plot$colourv)#,
+                                          #breaks=dat4plot$displayname,
+                                          #labels=dat4plot$displayname
+                                        ) + guides(fill=guide_legend(title="Source")) +
+                                        theme(legend.position="bottom")
+                                      
+                                      pmonth_uti <- ggplotly(plot_month_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+                                      return(pmonth_uti)
+                                    },
+                                    ignoreNULL=FALSE)
   
-  output$daymap_uti <- renderPlotly(
-    {
-      
-      #elec_emissions_daily <- reload_elec_data()
-      #gas_emissions_daily <- reload_gas_data()
-      
-      daterange_uti <- get_daterange_uti()
-      emiuseuti <- get_usageoremi()
-      
-      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
-      
-      filtuti <- get_utilityfilt()
-      
-      filt <- str_c(filtuti, "_", emiuseuti)
-      
-      if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
-      
-      
-      # elec_emissions_weekly <- elec_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(week) %>%
-      #   summarise(elec_emissions = sum(elec_emissions),
-      #             elec_usage = sum(elec_usage))
-      # 
-      # gas_emissions_weekly <- gas_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(week) %>%
-      #   summarise(gas_emissions = sum(gas_emissions),
-      #             gas_usage = sum(gas_usage))
-      # 
-      # utilities_weekly <-  elec_emissions_weekly %>%
-      #   full_join(gas_emissions_weekly) %>%
-      #   mutate(gas_usage = replace_na(gas_usage,0),
-      #          gas_emissions = replace_na(gas_emissions,0)) %>%
-      #   pivot_longer(cols = c("elec_usage","gas_usage","elec_emissions","gas_emissions")) %>%
-      #   mutate(year = substr(week,1,4),
-      #          week = (substr(week,6,7)),
-      #          name = factor(name))
-      # 
-      # dat4plot <- filter(utilities_weekly, name %in% c(filt))
-      
-      query <- str_c("select 
+  output$monthmap_uti <- renderPlotly(
+    render_uti_month()
+    )
+  
+  render_uti_day <- eventReactive(input$update_uti,
+                                  {
+                                    
+                                    #elec_emissions_daily <- reload_elec_data()
+                                    #gas_emissions_daily <- reload_gas_data()
+                                    
+                                    daterange_uti <- get_daterange_uti()
+                                    emiuseuti <- get_usageoremi()
+                                    
+                                    graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
+                                    
+                                    filtuti <- get_utilityfilt()
+                                    
+                                    filt <- str_c(filtuti, "_", emiuseuti)
+                                    
+                                    if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
+                                    
+                                    
+                                    # elec_emissions_weekly <- elec_emissions_daily %>%
+                                    #   filter(adate >= daterange_uti[1] &
+                                    #            adate <= daterange_uti[2]) %>%
+                                    #   group_by(week) %>%
+                                    #   summarise(elec_emissions = sum(elec_emissions),
+                                    #             elec_usage = sum(elec_usage))
+                                    # 
+                                    # gas_emissions_weekly <- gas_emissions_daily %>%
+                                    #   filter(adate >= daterange_uti[1] &
+                                    #            adate <= daterange_uti[2]) %>%
+                                    #   group_by(week) %>%
+                                    #   summarise(gas_emissions = sum(gas_emissions),
+                                    #             gas_usage = sum(gas_usage))
+                                    # 
+                                    # utilities_weekly <-  elec_emissions_weekly %>%
+                                    #   full_join(gas_emissions_weekly) %>%
+                                    #   mutate(gas_usage = replace_na(gas_usage,0),
+                                    #          gas_emissions = replace_na(gas_emissions,0)) %>%
+                                    #   pivot_longer(cols = c("elec_usage","gas_usage","elec_emissions","gas_emissions")) %>%
+                                    #   mutate(year = substr(week,1,4),
+                                    #          week = (substr(week,6,7)),
+                                    #          name = factor(name))
+                                    # 
+                                    # dat4plot <- filter(utilities_weekly, name %in% c(filt))
+                                    
+                                    query <- str_c("select 
     extract('doy' from day) as day,
     extract('year' from day) as isoyear,
     name,sum(value) as value from utilityusage.dailyusage_emissions
@@ -1133,97 +1149,104 @@ group by traveltype_superclass,superclass_colourv,year")
                    name in ('",str_c(filt,collapse="','"),"')
                    group by isoyear,day,name
                    order by isoyear,day ASC")
-      
-      dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
-                                          (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
-                                          (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
-                                levels = c('#00999d',
-                                           '#880f07',
-                                           '#5C4033'))) %>%
-        
-        mutate(name = factor(name)) %>%
-        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
-                                              name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
-                                              name == "gas_usage" ~ "Gas Usage (kWh)",
-                                              name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
-                                              name == "log_usage" ~ "Log Usage (kg)",
-                                              name == "log_emissions" ~ "Log Emissions (kg CO2e)"
-        ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
-                     "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
-                     "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
-        arrange(isoyear,name) %>%
-        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
-        mutate(Date = strftime(x=as.POSIXlt.character(str_c(isoyear,'-',day),format="%Y-%j"),format='%Y-%m-%d')) %>%
-        tibble()
-      
-      head(dat4plot)
-      
-      plot_day_uti <- ggplot() +
-        geom_col(
-          position = grapht,
-          data = dat4plot,
-          aes(x = day, y = value, fill = displayname,label=Date)
-        ) +
-        theme(axis.text.x = element_blank(),
-              axis.ticks.x = element_blank()) +
-        facet_wrap( ~ isoyear) +
-        ylab(graph_ylabel) +
-        scale_fill_manual(
-          values=levels(dat4plot$colourv)#,
-          #breaks=dat4plot$displayname,
-          #labels=dat4plot$displayname
-        ) + guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-      
-      pday_uti <- ggplotly(plot_day_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-    })
+                                    
+                                    dat4plot <- dbGetQuery(pgconn,query) %>%
+                                      mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                                                        (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                                                        (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                                                              levels = c('#00999d',
+                                                                         '#880f07',
+                                                                         '#5C4033'))) %>%
+                                      
+                                      mutate(name = factor(name)) %>%
+                                      mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                                                            name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                                                            name == "gas_usage" ~ "Gas Usage (kWh)",
+                                                                            name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                                                            name == "log_usage" ~ "Log Usage (kg)",
+                                                                            name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+                                      ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                                                   "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                                                   "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+                                      arrange(isoyear,name) %>%
+                                      mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+                                      mutate(Date = strftime(x=as.POSIXlt.character(str_c(isoyear,'-',day),format="%Y-%j"),format='%Y-%m-%d')) %>%
+                                      tibble()
+                                    
+                                    head(dat4plot)
+                                    
+                                    plot_day_uti <- ggplot() +
+                                      geom_col(
+                                        position = grapht,
+                                        data = dat4plot,
+                                        aes(x = day, y = value, fill = displayname,label=Date)
+                                      ) +
+                                      theme(axis.text.x = element_blank(),
+                                            axis.ticks.x = element_blank()) +
+                                      facet_wrap( ~ isoyear) +
+                                      ylab(graph_ylabel) +
+                                      scale_fill_manual(
+                                        values=levels(dat4plot$colourv)#,
+                                        #breaks=dat4plot$displayname,
+                                        #labels=dat4plot$displayname
+                                      ) + guides(fill=guide_legend(title="Source")) +
+                                      theme(legend.position="bottom")
+                                    
+                                    pday_uti <- ggplotly(plot_day_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+                                    return(pday_uti)
+                                  },
+                                  ignoreNULL=FALSE)
   
   
-  output$weekmap_uti <- renderPlotly(
-    {
-      
-      #elec_emissions_daily <- reload_elec_data()
-      #gas_emissions_daily <- reload_gas_data()
-      
-      daterange_uti <- get_daterange_uti()
-      emiuseuti <- get_usageoremi()
-      
-      graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
-      
-      filtuti <- get_utilityfilt()
-      
-      filt <- str_c(filtuti, "_", emiuseuti)
-      
-      if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
-      
-      
-      # elec_emissions_weekly <- elec_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(week) %>%
-      #   summarise(elec_emissions = sum(elec_emissions),
-      #             elec_usage = sum(elec_usage))
-      # 
-      # gas_emissions_weekly <- gas_emissions_daily %>%
-      #   filter(adate >= daterange_uti[1] &
-      #            adate <= daterange_uti[2]) %>%
-      #   group_by(week) %>%
-      #   summarise(gas_emissions = sum(gas_emissions),
-      #             gas_usage = sum(gas_usage))
-      # 
-      # utilities_weekly <-  elec_emissions_weekly %>%
-      #   full_join(gas_emissions_weekly) %>%
-      #   mutate(gas_usage = replace_na(gas_usage,0),
-      #          gas_emissions = replace_na(gas_emissions,0)) %>%
-      #   pivot_longer(cols = c("elec_usage","gas_usage","elec_emissions","gas_emissions")) %>%
-      #   mutate(year = substr(week,1,4),
-      #          week = (substr(week,6,7)),
-      #          name = factor(name))
-      # 
-      # dat4plot <- filter(utilities_weekly, name %in% c(filt))
-      
-      query <- str_c("select 
+  
+  output$daymap_uti <- renderPlotly(
+    render_uti_day()
+    )
+  
+  render_uti_week <- eventReactive(input$update_uti,
+                                    {
+    
+    #elec_emissions_daily <- reload_elec_data()
+    #gas_emissions_daily <- reload_gas_data()
+    
+    daterange_uti <- get_daterange_uti()
+    emiuseuti <- get_usageoremi()
+    
+    graph_ylabel <- names(emissions_graph_types[emissions_graph_types==emiuseuti])
+    
+    filtuti <- get_utilityfilt()
+    
+    filt <- str_c(filtuti, "_", emiuseuti)
+    
+    if (emiuseuti == "usage") grapht <- "dodge" else grapht <- "stack"
+    
+    
+    # elec_emissions_weekly <- elec_emissions_daily %>%
+    #   filter(adate >= daterange_uti[1] &
+    #            adate <= daterange_uti[2]) %>%
+    #   group_by(week) %>%
+    #   summarise(elec_emissions = sum(elec_emissions),
+    #             elec_usage = sum(elec_usage))
+    # 
+    # gas_emissions_weekly <- gas_emissions_daily %>%
+    #   filter(adate >= daterange_uti[1] &
+    #            adate <= daterange_uti[2]) %>%
+    #   group_by(week) %>%
+    #   summarise(gas_emissions = sum(gas_emissions),
+    #             gas_usage = sum(gas_usage))
+    # 
+    # utilities_weekly <-  elec_emissions_weekly %>%
+    #   full_join(gas_emissions_weekly) %>%
+    #   mutate(gas_usage = replace_na(gas_usage,0),
+    #          gas_emissions = replace_na(gas_emissions,0)) %>%
+    #   pivot_longer(cols = c("elec_usage","gas_usage","elec_emissions","gas_emissions")) %>%
+    #   mutate(year = substr(week,1,4),
+    #          week = (substr(week,6,7)),
+    #          name = factor(name))
+    # 
+    # dat4plot <- filter(utilities_weekly, name %in% c(filt))
+    
+    query <- str_c("select 
     extract('week' from day) as isoweek,
     extract('isoyear' from day) as isoyear,
     name,sum(value) as value from utilityusage.dailyusage_emissions
@@ -1232,48 +1255,55 @@ group by traveltype_superclass,superclass_colourv,year")
                    name in ('",str_c(filt,collapse="','"),"')
                    group by isoyear,isoweek,name
                    order by isoyear,isoweek ASC")
+    
+    dat4plot <- dbGetQuery(pgconn,query) %>%
+      mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
+                                        (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
+                                        (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
+                              levels = c('#00999d',
+                                         '#880f07',
+                                         '#5C4033'))) %>%
       
-      dat4plot <- dbGetQuery(pgconn,query) %>%
-        mutate(colourv = factor(case_when((name == 'elec_usage' | name == 'elec_emissions') ~ '#00999d',
-                                          (name == 'gas_usage' | name == 'gas_emissions') ~ '#880f07',
-                                          (name == 'log_usage' | name == 'log_emissions') ~ '#5C4033'),
-                                levels = c('#00999d',
-                                           '#880f07',
-                                           '#5C4033'))) %>%
-        
-        mutate(name = factor(name)) %>%
-        mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
-                                              name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
-                                              name == "gas_usage" ~ "Gas Usage (kWh)",
-                                              name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
-                                              name == "log_usage" ~ "Log Usage (kg)",
-                                              name == "log_emissions" ~ "Log Emissions (kg CO2e)"
-        ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
-                     "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
-                     "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
-        arrange(isoyear,name) %>%
-        mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
-        tibble()
-      
-      plot_week_uti <- ggplot() +
-        geom_col(
-          position = grapht,
-          data = dat4plot,
-          aes(x = isoweek, y = value, fill = displayname)
-        ) +
-        theme(axis.text.x = element_blank(),
-              axis.ticks.x = element_blank()) +
-        facet_wrap( ~ isoyear) +
-        ylab(graph_ylabel) +
-        scale_fill_manual(
-          values=levels(dat4plot$colourv)#,
-          #breaks=dat4plot$displayname,
-          #labels=dat4plot$displayname
-        ) + guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-      
-      pweek_uti <- ggplotly(plot_week_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-    })
+      mutate(name = factor(name)) %>%
+      mutate(displayname = factor(case_when(name == "elec_usage" ~ "Electricity Usage (kWh)",
+                                            name == "elec_emissions" ~ "Electricity Emissions (kg CO2e)",
+                                            name == "gas_usage" ~ "Gas Usage (kWh)",
+                                            name == "gas_emissions" ~ "Gas Emissions (kg CO2e)",
+                                            name == "log_usage" ~ "Log Usage (kg)",
+                                            name == "log_emissions" ~ "Log Emissions (kg CO2e)"
+      ),levels = c("Electricity Usage (kWh)","Electricity Emissions (kg CO2e)",
+                   "Gas Usage (kWh)","Gas Emissions (kg CO2e)",
+                   "Log Usage (kg)","Log Emissions (kg CO2e)"))) %>%
+      arrange(isoyear,name) %>%
+      mutate(value = if_else(name == 'log_usage',value*1000,value)) %>%
+      tibble()
+    
+    plot_week_uti <- ggplot() +
+      geom_col(
+        position = grapht,
+        data = dat4plot,
+        aes(x = isoweek, y = value, fill = displayname)
+      ) +
+      theme(axis.text.x = element_blank(),
+            axis.ticks.x = element_blank()) +
+      facet_wrap( ~ isoyear) +
+      ylab(graph_ylabel) +
+      scale_fill_manual(
+        values=levels(dat4plot$colourv)#,
+        #breaks=dat4plot$displayname,
+        #labels=dat4plot$displayname
+      ) + guides(fill=guide_legend(title="Source")) +
+      theme(legend.position="bottom")
+    
+    pweek_uti <- ggplotly(plot_week_uti) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+    return(pweek_uti)
+  },
+  ignoreNULL=FALSE)
+  
+
+  output$weekmap_uti <- renderPlotly(
+    render_uti_week()
+    )
   
   output$daily_week_elec <- renderPlotly(
     {
@@ -1309,26 +1339,26 @@ group by traveltype_superclass,superclass_colourv,year")
       plot30minplotly <- ggplotly(plot30min)
     })
   
-  output$daymap_emi <- renderPlotly(
-    {
-      
-      #travel_lines_daily <- reload_lines_daily()
-      #utilities_daily_4merge <- reload_daily_utilities()
-      
-      daterange_emi <- get_daterange_emi()
-      emifilt <- get_emifilt()
-      
-      # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
-      #   filter(as.Date(day) >= daterange_emi[1] &
-      #            as.Date(day) <= daterange_emi[2] &
-      #            name %in% emifilt)
-      # 
-      # weekly_emissions_data <- daily_emissions_data %>%
-      #   group_by(name,colourv,week,year) %>%
-      #   summarise(value = sum(value)) %>%
-      #   mutate(week = substr(week,6,7))
-      
-      query <- str_c("select name,colourv,orderv,
+  render_emi_day <- eventReactive(input$update_emi,
+                                  {
+                                    
+                                    #travel_lines_daily <- reload_lines_daily()
+                                    #utilities_daily_4merge <- reload_daily_utilities()
+                                    
+                                    daterange_emi <- get_daterange_emi()
+                                    emifilt <- get_emifilt()
+                                    
+                                    # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
+                                    #   filter(as.Date(day) >= daterange_emi[1] &
+                                    #            as.Date(day) <= daterange_emi[2] &
+                                    #            name %in% emifilt)
+                                    # 
+                                    # weekly_emissions_data <- daily_emissions_data %>%
+                                    #   group_by(name,colourv,week,year) %>%
+                                    #   summarise(value = sum(value)) %>%
+                                    #   mutate(week = substr(week,6,7))
+                                    
+                                    query <- str_c("select name,colourv,orderv,
     extract('doy' from day) as day,
     extract('year' from day) as isoyear,
     sum(value) as value from emissions.emissions_daily 
@@ -1336,62 +1366,67 @@ group by traveltype_superclass,superclass_colourv,year")
                    name in ('",str_c(emifilt,collapse="','"),"')
                    group by isoyear,day,name,colourv,orderv
                    order by isoyear,day ASC"
-      )
-      
-      day_emissions_data <- dbGetQuery(pgconn,query)
-      
-      day_emissions_data <- left_join(day_emissions_data,emissions_filters_types_df) %>%
-        mutate(Date = strftime(x=as.POSIXlt.character(str_c(isoyear,'-',day),format="%Y-%j"),format='%Y-%m-%d'))
-      
-      ordering <- day_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname) 
-      
-      day_emissions_data <-  day_emissions_data %>%
-        mutate(displayname = factor(displayname,levels=ordering))
-      
-      
-      #print(names(weekly_emissions_data))
-      
-      plot_day_emi <- ggplot() +
-        geom_col(
-          position = "stack",
-          data = day_emissions_data,
-          aes(x = day, y = value, fill = displayname,labels=Date)
-        ) +
-        theme(axis.text.x = element_blank(),
-              axis.ticks.x=element_blank()) +
-        facet_wrap( ~ isoyear) + 
-        scale_fill_manual(
-          values=day_emissions_data$colourv,
-          breaks=day_emissions_data$displayname#,
-          #labels=weekly_emissions_data$displayname
-        ) + 
-        guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-      
-      pday_emi <- ggplotly(plot_day_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-      
-    })
+                                    )
+                                    
+                                    day_emissions_data <- dbGetQuery(pgconn,query)
+                                    
+                                    day_emissions_data <- left_join(day_emissions_data,emissions_filters_types_df) %>%
+                                      mutate(Date = strftime(x=as.POSIXlt.character(str_c(isoyear,'-',day),format="%Y-%j"),format='%Y-%m-%d'))
+                                    
+                                    ordering <- day_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname) 
+                                    
+                                    day_emissions_data <-  day_emissions_data %>%
+                                      mutate(displayname = factor(displayname,levels=ordering))
+                                    
+                                    
+                                    #print(names(weekly_emissions_data))
+                                    
+                                    plot_day_emi <- ggplot() +
+                                      geom_col(
+                                        position = "stack",
+                                        data = day_emissions_data,
+                                        aes(x = day, y = value, fill = displayname,labels=Date)
+                                      ) +
+                                      theme(axis.text.x = element_blank(),
+                                            axis.ticks.x=element_blank()) +
+                                      facet_wrap( ~ isoyear) + 
+                                      scale_fill_manual(
+                                        values=day_emissions_data$colourv,
+                                        breaks=day_emissions_data$displayname#,
+                                        #labels=weekly_emissions_data$displayname
+                                      ) + 
+                                      guides(fill=guide_legend(title="Source")) +
+                                      theme(legend.position="bottom")
+                                    
+                                    pday_emi <- ggplotly(plot_day_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+                                    return(pday_emi)
+                                  },
+                                  ignoreNULL=FALSE)
   
-  output$weekmap_emi <- renderPlotly(
-    {
-      
-      #travel_lines_daily <- reload_lines_daily()
-      #utilities_daily_4merge <- reload_daily_utilities()
-      
-      daterange_emi <- get_daterange_emi()
-      emifilt <- get_emifilt()
-      
-      # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
-      #   filter(as.Date(day) >= daterange_emi[1] &
-      #            as.Date(day) <= daterange_emi[2] &
-      #            name %in% emifilt)
-      # 
-      # weekly_emissions_data <- daily_emissions_data %>%
-      #   group_by(name,colourv,week,year) %>%
-      #   summarise(value = sum(value)) %>%
-      #   mutate(week = substr(week,6,7))
-      
-      query <- str_c("select name,colourv,orderv,
+  output$daymap_emi <- renderPlotly(
+    render_emi_day()
+    )
+  
+  render_emi_week <- eventReactive(input$update_emi,
+                                   {
+                                     
+                                     #travel_lines_daily <- reload_lines_daily()
+                                     #utilities_daily_4merge <- reload_daily_utilities()
+                                     
+                                     daterange_emi <- get_daterange_emi()
+                                     emifilt <- get_emifilt()
+                                     
+                                     # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
+                                     #   filter(as.Date(day) >= daterange_emi[1] &
+                                     #            as.Date(day) <= daterange_emi[2] &
+                                     #            name %in% emifilt)
+                                     # 
+                                     # weekly_emissions_data <- daily_emissions_data %>%
+                                     #   group_by(name,colourv,week,year) %>%
+                                     #   summarise(value = sum(value)) %>%
+                                     #   mutate(week = substr(week,6,7))
+                                     
+                                     query <- str_c("select name,colourv,orderv,
     extract('week' from day) as isoweek,
     extract('isoyear' from day) as isoyear,
     sum(value) as value from emissions.emissions_daily 
@@ -1399,162 +1434,179 @@ group by traveltype_superclass,superclass_colourv,year")
                    name in ('",str_c(emifilt,collapse="','"),"')
                    group by isoyear,isoweek,name,colourv,orderv
                    order by isoyear,isoweek ASC"
-      )
-      
-      weekly_emissions_data <- dbGetQuery(pgconn,query)
-      
-      weekly_emissions_data <- left_join(weekly_emissions_data,emissions_filters_types_df)
-      
-      ordering <- weekly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
-      
-      weekly_emissions_data <- weekly_emissions_data %>%
-        mutate(displayname = factor(displayname,levels=ordering))
-      
-      #print(names(weekly_emissions_data))
-      
-      plot_week_emi <- ggplot() +
-        geom_col(
-          position = "stack",
-          data = weekly_emissions_data,
-          aes(x = isoweek, y = value, fill = displayname)
-        ) +
-        theme(axis.text.x = element_blank(),
-              axis.ticks.x=element_blank()) +
-        facet_wrap( ~ isoyear) + 
-        scale_fill_manual(
-          values=weekly_emissions_data$colourv,
-          breaks=weekly_emissions_data$displayname#,
-          #labels=weekly_emissions_data$displayname
-        ) + 
-        guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-      
-      pweek_emi <- ggplotly(plot_week_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-      
-    })
+                                     )
+                                     
+                                     weekly_emissions_data <- dbGetQuery(pgconn,query)
+                                     
+                                     weekly_emissions_data <- left_join(weekly_emissions_data,emissions_filters_types_df)
+                                     
+                                     ordering <- weekly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
+                                     
+                                     weekly_emissions_data <- weekly_emissions_data %>%
+                                       mutate(displayname = factor(displayname,levels=ordering))
+                                     
+                                     #print(names(weekly_emissions_data))
+                                     
+                                     plot_week_emi <- ggplot() +
+                                       geom_col(
+                                         position = "stack",
+                                         data = weekly_emissions_data,
+                                         aes(x = isoweek, y = value, fill = displayname)
+                                       ) +
+                                       theme(axis.text.x = element_blank(),
+                                             axis.ticks.x=element_blank()) +
+                                       facet_wrap( ~ isoyear) + 
+                                       scale_fill_manual(
+                                         values=weekly_emissions_data$colourv,
+                                         breaks=weekly_emissions_data$displayname#,
+                                         #labels=weekly_emissions_data$displayname
+                                       ) + 
+                                       guides(fill=guide_legend(title="Source")) +
+                                       theme(legend.position="bottom")
+                                     
+                                     pweek_emi <- ggplotly(plot_week_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+                                     return(pweek_emi)
+                                   },
+                                   ignoreNULL=FALSE
+                                   )
   
-  output$monthmap_emi <- renderPlotly(
-    {
-      
-      #travel_lines_daily <- reload_lines_daily()
-      #utilities_daily_4merge <- reload_daily_utilities()
-      
-      daterange_emi <- get_daterange_emi()
-      emifilt <- get_emifilt()
-      
-      # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
-      #   filter(as.Date(day) >= daterange_emi[1] &
-      #            as.Date(day) <= daterange_emi[2] &
-      #            name %in% emifilt)
-      # 
-      # monthly_emissions_data <- daily_emissions_data %>%
-      #   group_by(name,colourv,month,year) %>%
-      #   summarise(value = sum(value)) %>%
-      #   mutate(month = as.numeric(substr(month,6,7)))
-      
-      query <- str_c("select name,colourv,orderv,month,year,sum(value) as value from emissions.emissions_daily 
+  output$weekmap_emi <- renderPlotly(
+    render_emi_week()
+    )
+  
+  render_emi_month <- eventReactive(input$update_emi,
+                                    {
+                                      
+                                      #travel_lines_daily <- reload_lines_daily()
+                                      #utilities_daily_4merge <- reload_daily_utilities()
+                                      
+                                      daterange_emi <- get_daterange_emi()
+                                      emifilt <- get_emifilt()
+                                      
+                                      # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
+                                      #   filter(as.Date(day) >= daterange_emi[1] &
+                                      #            as.Date(day) <= daterange_emi[2] &
+                                      #            name %in% emifilt)
+                                      # 
+                                      # monthly_emissions_data <- daily_emissions_data %>%
+                                      #   group_by(name,colourv,month,year) %>%
+                                      #   summarise(value = sum(value)) %>%
+                                      #   mutate(month = as.numeric(substr(month,6,7)))
+                                      
+                                      query <- str_c("select name,colourv,orderv,month,year,sum(value) as value from emissions.emissions_daily 
     where day >= to_date('",daterange_emi[1],"','YYYY-MM-DD') and day <= to_date('",daterange_emi[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(emifilt,collapse="','"),"')
                    group by year,month,name,colourv,orderv
                    order by year,month ASC"
-      )
-      
-      monthly_emissions_data <- dbGetQuery(pgconn,query)
-      
-      monthly_emissions_data <- left_join(monthly_emissions_data,emissions_filters_types_df)
-      
-      ordering <- monthly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
-      
-      monthly_emissions_data <- monthly_emissions_data %>%
-        mutate(displayname = factor(displayname,levels=ordering))
-      
-      
-      plot_month_emi <- ggplot() +
-        geom_col(
-          position = "stack",
-          data = monthly_emissions_data,
-          aes(x = month, y = value, fill = displayname)
-        ) +
-        theme(axis.text.x = element_text(
-          angle = 90,
-          vjust = 0.5,
-          hjust = 1
-        )) +
-        #theme(axis.text.x = element_blank()) +
-        facet_wrap( ~ year) + 
-        scale_fill_manual(
-          values=monthly_emissions_data$colourv,
-          breaks=monthly_emissions_data$displayname#,
-          #labels=monthly_emissions_data$name
-        ) +
-        scale_x_continuous(
-          breaks = seq(1,12),
-          labels= levels(factor(seq(1,12)))
-          #limits=seq(1,12)) 
-        ) + 
-        guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-      
-      pmonth_emi <- ggplotly(plot_month_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-      
-    })
+                                      )
+                                      
+                                      monthly_emissions_data <- dbGetQuery(pgconn,query)
+                                      
+                                      monthly_emissions_data <- left_join(monthly_emissions_data,emissions_filters_types_df)
+                                      
+                                      ordering <- monthly_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
+                                      
+                                      monthly_emissions_data <- monthly_emissions_data %>%
+                                        mutate(displayname = factor(displayname,levels=ordering))
+                                      
+                                      
+                                      plot_month_emi <- ggplot() +
+                                        geom_col(
+                                          position = "stack",
+                                          data = monthly_emissions_data,
+                                          aes(x = month, y = value, fill = displayname)
+                                        ) +
+                                        theme(axis.text.x = element_text(
+                                          angle = 90,
+                                          vjust = 0.5,
+                                          hjust = 1
+                                        )) +
+                                        #theme(axis.text.x = element_blank()) +
+                                        facet_wrap( ~ year) + 
+                                        scale_fill_manual(
+                                          values=monthly_emissions_data$colourv,
+                                          breaks=monthly_emissions_data$displayname#,
+                                          #labels=monthly_emissions_data$name
+                                        ) +
+                                        scale_x_continuous(
+                                          breaks = seq(1,12),
+                                          labels= levels(factor(seq(1,12)))
+                                          #limits=seq(1,12)) 
+                                        ) + 
+                                        guides(fill=guide_legend(title="Source")) +
+                                        theme(legend.position="bottom")
+                                      
+                                      pmonth_emi <- ggplotly(plot_month_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+                                      return(pmonth_emi)
+                                    },
+                                    ignoreNULL = FALSE)
   
-  output$annualmap_emi <- renderPlotly(
-    {
-      
-      #travel_lines_daily <- reload_lines_daily()
-      #utilities_daily_4merge <- reload_daily_utilities()
-      
-      daterange_emi <- get_daterange_emi()
-      emifilt <- get_emifilt()
-      
-      # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
-      #   filter(as.Date(day) >= daterange_emi[1] &
-      #            as.Date(day) <= daterange_emi[2] &
-      #            name %in% emifilt)
-      # 
-      # annual_emissions_data <- daily_emissions_data %>%
-      #   group_by(name,colourv,year) %>%
-      #   summarise(value = sum(value)) 
-      
-      query <- str_c("select name,colourv,orderv,year,sum(value) as value from emissions.emissions_daily 
+  output$monthmap_emi <- renderPlotly(
+    render_emi_month()
+    )
+  
+  render_emi_annual <- eventReactive(input$update_emi,
+                                     {
+                                       
+                                       #travel_lines_daily <- reload_lines_daily()
+                                       #utilities_daily_4merge <- reload_daily_utilities()
+                                       
+                                       daterange_emi <- get_daterange_emi()
+                                       emifilt <- get_emifilt()
+                                       
+                                       # daily_emissions_data <- rbind(travel_lines_daily,utilities_daily_4merge) %>%
+                                       #   filter(as.Date(day) >= daterange_emi[1] &
+                                       #            as.Date(day) <= daterange_emi[2] &
+                                       #            name %in% emifilt)
+                                       # 
+                                       # annual_emissions_data <- daily_emissions_data %>%
+                                       #   group_by(name,colourv,year) %>%
+                                       #   summarise(value = sum(value)) 
+                                       
+                                       query <- str_c("select name,colourv,orderv,year,sum(value) as value from emissions.emissions_daily 
     where day >= to_date('",daterange_emi[1],"','YYYY-MM-DD') and day <= to_date('",daterange_emi[2],"','YYYY-MM-DD') and 
                    name in ('",str_c(emifilt,collapse="','"),"')
                    group by year,name,colourv,orderv
                    order by orderv ASC"
-      )
-      
-      annual_emissions_data <- dbGetQuery(pgconn,query)
-      
-      annual_emissions_data <- left_join(annual_emissions_data,emissions_filters_types_df) 
-      
-      ordering <- annual_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
-      
-      annual_emissions_data <- annual_emissions_data %>%
-        mutate(displayname = factor(displayname,levels=ordering))
-      
-      plot_year_emi <- ggplot() +
-        geom_col(
-          position = "stack",
-          data = annual_emissions_data,
-          #aes(x = year, y = value, fill = factor(displayname,levels=ordering))
-          aes(x = year, y = value, fill = displayname)
-        ) +
-        #theme(axis.text.x = element_blank()) +
-        #facet_wrap( ~ year) + 
-        scale_fill_manual(
-          values=annual_emissions_data$colourv,
-          breaks=annual_emissions_data$displayname#,
-          #labels=annual_emissions_data$name
-        ) + 
-        scale_x_continuous(
-          breaks = seq(min_yr_emi,max_yr_emi),
-          labels= levels(factor(seq(min_yr_emi,max_yr_emi)))) + 
-        guides(fill=guide_legend(title="Source")) +
-        theme(legend.position="bottom")
-      
-      pyear_emi <- ggplotly(plot_year_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
-      
-    })
+                                       )
+                                       
+                                       annual_emissions_data <- dbGetQuery(pgconn,query)
+                                       
+                                       annual_emissions_data <- left_join(annual_emissions_data,emissions_filters_types_df) 
+                                       
+                                       ordering <- annual_emissions_data %>% group_by(displayname,orderv) %>% summarise() %>% ungroup() %>% dplyr::arrange(orderv) %>% pull(displayname)
+                                       
+                                       annual_emissions_data <- annual_emissions_data %>%
+                                         mutate(displayname = factor(displayname,levels=ordering))
+                                       
+                                       plot_year_emi <- ggplot() +
+                                         geom_col(
+                                           position = "stack",
+                                           data = annual_emissions_data,
+                                           #aes(x = year, y = value, fill = factor(displayname,levels=ordering))
+                                           aes(x = year, y = value, fill = displayname)
+                                         ) +
+                                         #theme(axis.text.x = element_blank()) +
+                                         #facet_wrap( ~ year) + 
+                                         scale_fill_manual(
+                                           values=annual_emissions_data$colourv,
+                                           breaks=annual_emissions_data$displayname#,
+                                           #labels=annual_emissions_data$name
+                                         ) + 
+                                         scale_x_continuous(
+                                           breaks = seq(min_yr_emi,max_yr_emi),
+                                           labels= levels(factor(seq(min_yr_emi,max_yr_emi)))) + 
+                                         guides(fill=guide_legend(title="Source")) +
+                                         theme(legend.position="bottom")
+                                       
+                                       pyear_emi <- ggplotly(plot_year_emi) %>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+                                       return(pyear_emi)
+                                       
+                                     },
+                                     ignoreNULL = FALSE)
+  
+  output$annualmap_emi <- renderPlotly(
+    render_emi_annual()
+    )
   
 }
