@@ -265,6 +265,7 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
                                    "</table>"
       )
       
+      map_dta2_bbox <- st_bbox(map_dta2)
       
       #travel_lines <- reload_map_data()
       
@@ -295,7 +296,8 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
           baseGroups = c("OSM (default)", "Imagery (ESRI)","OpenTopoMap"),
           overlayGroups = c("Hills","Tracks"),
           options = layersControlOptions(collapsed = FALSE)
-        )
+        ) %>%
+        fitBounds(map_dta2_bbox[[1]], map_dta2_bbox[[2]], map_dta2_bbox[[3]], map_dta2_bbox[[4]])
       
     })
   
@@ -856,8 +858,11 @@ group by traveltype_superclass,superclass_colourv,year")
       
       #travel_lines <- reload_map_data()
       
+      map_dta_bbox <- st_bbox(map_dta)
+      
       #print(map_dta)
       map <- leaflet() %>%
+        fitBounds(map_dta_bbox[[1]], map_dta_bbox[[2]], map_dta_bbox[[3]], map_dta_bbox[[4]]) %>%
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
         addProviderTiles(providers$OpenTopoMap,group="OpenTopoMap") %>%
@@ -873,7 +878,8 @@ group by traveltype_superclass,superclass_colourv,year")
           baseGroups = c("OSM (default)", "Imagery (ESRI)","OpenTopoMap"),
           overlayGroups = c("Tracks"),
           options = layersControlOptions(collapsed = FALSE)
-        )
+        ) #%>%
+        #
       
     })
   
