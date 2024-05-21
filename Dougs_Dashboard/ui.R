@@ -257,7 +257,7 @@ navbarPage(windowTitle = "Dougs Data",
                       ),
                       mainPanel(
                         width=10,
-                        leafglOutput("mymap",height="55vh"),
+                        leafglOutput("mymap",height="50vh"),
                         tabsetPanel(
                           tabPanel(title="Daily",plotlyOutput("daymap",height="35vh")),
                           tabPanel(title="Weekly",plotlyOutput("weekmap",height="35vh")),
