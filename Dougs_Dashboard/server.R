@@ -1,5 +1,6 @@
 library(shiny)
 library(leafgl)
+library(leaflet.extras)
 
 options(shiny.host = "0.0.0.0")
 options(shiny.port = 7322)
@@ -297,7 +298,8 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
           overlayGroups = c("Hills","Tracks"),
           options = layersControlOptions(collapsed = FALSE)
         ) %>%
-        fitBounds(map_dta2_bbox[[1]], map_dta2_bbox[[2]], map_dta2_bbox[[3]], map_dta2_bbox[[4]])
+        fitBounds(map_dta2_bbox[[1]], map_dta2_bbox[[2]], map_dta2_bbox[[3]], map_dta2_bbox[[4]]) %>%
+        addFullscreenControl()
       
     })
   
@@ -878,7 +880,8 @@ group by traveltype_superclass,superclass_colourv,year")
           baseGroups = c("OSM (default)", "Imagery (ESRI)","OpenTopoMap"),
           overlayGroups = c("Tracks"),
           options = layersControlOptions(collapsed = FALSE)
-        ) #%>%
+        ) %>%
+        addFullscreenControl()
         #
       
     })

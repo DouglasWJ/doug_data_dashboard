@@ -13,6 +13,7 @@ library(scales)
 library(htmltools)
 library(leaflet.providers)
 library(leafgl)
+library(leaflet.extras)
 
 
 units_options(group = c("(", ")") )
