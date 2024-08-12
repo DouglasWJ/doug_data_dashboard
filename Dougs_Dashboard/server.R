@@ -1,5 +1,5 @@
 library(shiny)
-library(leafgl)
+#library(leafgl)
 library(leaflet.extras)
 
 options(shiny.host = "0.0.0.0")
@@ -173,10 +173,12 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                               #print(map_dta)
                               leafletProxy("mymap") %>%
                                 clearShapes() %>%
-                                clearGlLayers() %>%
+                                #clearGlLayers() %>%
                                 #removeGlPolylines(layerId = ids) %>%
                                 #removeShape("travel_lines_id") %>%
-                                addGlPolylines(
+                                #addGlPolylines(
+                                addPolylines(
+                                  opacity = 1.0,
                                   data = map_dta,
                                   color =  ~colourv,
                                   popup = popupsv,
@@ -188,8 +190,8 @@ and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")")
                               } else {
                                 
                                 leafletProxy("mymap") %>%
-                                  clearShapes() %>%
-                                  clearGlLayers()
+                                  clearShapes() #%>%
+                                  #clearGlLayers()
                                 
                               }
                               
@@ -275,7 +277,9 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
         addProviderTiles(providers$OpenTopoMap,group="OpenTopoMap") %>%
-        addGlPolylines(data = map_dta2,
+        #addGlPolylines(data = map_dta2,
+        addPolylines(data = map_dta2,
+                     opacity = 1.0,
                      color = "brown",
                      group = "Tracks",
                      weight = 2,
@@ -450,9 +454,11 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color,
                                     #print(map_dta)
                                     leafletProxy("myhillmap") %>%
                                       clearShapes() %>%
-                                      clearGlLayers() %>%
+                                      #clearGlLayers() %>%
                                       #removeGlPolylines(layerId=ids) %>%
-                                      addGlPolylines(data = map_dta2,
+                                      #addGlPolylines(data = map_dta2,
+                                      addPolylines(data = map_dta2,
+                                                   opacity = 1.0,
                                                    color = "brown",
                                                    group = "Tracks",
                                                    weight = 2,
@@ -474,7 +480,7 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color,
                                       
                                       leafletProxy("myhillmap") %>%
                                         clearShapes() %>%
-                                        clearGlLayers() %>%
+                                        #clearGlLayers() %>%
                                         #removeGlPolylines(layerId=ids) %>%
                                         # addGlPolylines(data = map_dta2,
                                         #                color = "brown",
@@ -868,7 +874,9 @@ group by traveltype_superclass,superclass_colourv,year")
         addTiles(group = "OSM (default)") %>%
         addProviderTiles(providers$Esri.WorldImagery,group="Imagery (ESRI)") %>%
         addProviderTiles(providers$OpenTopoMap,group="OpenTopoMap") %>%
-        addGlPolylines(
+        #addGlPolylines(
+        addPolylines(
+          opacity = 1.0,
           data = map_dta,
           color =  ~ colourv,
           popup = popupsv,
