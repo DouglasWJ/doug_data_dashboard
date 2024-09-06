@@ -1,6 +1,8 @@
 
 
 
+
+
 navbarPage(windowTitle = "Dougs Data",
            tags$style(type = "text/css", "#myhillmap {height: calc(100vh - 80px) !important;} #daymap_emi {height: calc(100vh - 120px) !important;} #weekmap_emi {height: calc(100vh - 120px) !important;} #monthmap_emi {height: calc(100vh - 120px) !important;} #annualmap_emi {height: calc(100vh - 120px) !important;} #daily_week_elec {height: calc(25vh - 30px) !important;} #daily_week_gas {height: calc(25vh - 30px) !important;} #daymap_uti {height: calc(45vh - 60px) !important;} #weekmap_uti {height: calc(45vh - 60px) !important;} #monthmap_uti {height: calc(45vh - 60px) !important;} #annualmap_uti {height: calc(50vh - 60px) !important;} "),
            
@@ -376,5 +378,19 @@ checkboxGroupButtons("climbed","Ascent Complete:",
                        leafletOutput("myhillmap"))
            
            )
+),
+tabPanel("Trips",
+         sidebarLayout(
+           sidebarPanel(width=3,
+                        countries_widget
+                        ),
+           mainPanel(width=9
+                     )
+           ),
+         dateRangeInput("dates", label = h3("Date range"),
+                        start=paste0(min_yr,"-01-01"),end=paste0(max_yr,"-01-01"),
+                        min=paste0(min_yr,"-01-01"),max=paste0(max_yr,"-01-01"))
 )
 )
+
+

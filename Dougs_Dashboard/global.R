@@ -14,6 +14,8 @@ library(htmltools)
 library(leaflet.providers)
 #library(leafgl)
 library(leaflet.extras)
+library(rnaturalearthdata)
+library(rnaturalearthhires)
 
 
 units_options(group = c("(", ")") )
@@ -242,4 +244,54 @@ emissions_filters_types <- c("Aircraft" = "Aircraft",
 
 emissions_filters_types_df <- rownames_to_column(data.frame(t(data.frame(as.list(emissions_filters_types)))))
 names(emissions_filters_types_df) <- c("displayname","name")
+
+gb_countries <- states10 |>
+  select(name,admin,geonunit) |>
+  filter(admin == "United Kingdom") |>
+  group_by(geonunit) |>
+  summarise(geometry = st_union(geometry)) |>
+  ungroup() |>
+  rename(name = geonunit) |>
+  mutate(alpha.2 = case_when(name == "Scotland" ~ "gb-sct",
+                             name == "England" ~ "gb-eng",
+                             name == "Wales" ~ "gb-wls",
+                             name == "Northern Ireland" ~ "gb-nir"))
+
+countries <- countries10 |>
+  select(NAME_LONG,ISO_A2_EH) |>
+  filter(ISO_A2_EH != -99) |>
+  rename(name = NAME_LONG,
+         alpha.2 = ISO_A2_EH) |>
+  bind_rows(gb_countries)  |>
+  mutate(alpha.2 = tolower(alpha.2)) |>
+  arrange(name)
+
+gb_countries_df <- data.frame(name=c("Scotland","England","Wales","Northern Ireland"),alpha.2=c("gb-sct","gb-eng","gb-wls","gb-nir"))
+
+countries_df <<- read.csv("https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/all/all.csv",strip.white = TRUE) |>
+  select(name,alpha.2) |>
+  mutate(alpha.2 = if_else(name == "Namibia","NA",alpha.2)) |>
+  bind_rows(gb_countries_df) |>
+  mutate(alpha.2 = tolower(alpha.2)) |>
+  mutate(svg_url = str_c("https://cdn.jsdelivr.net/gh/lipis/flag-icon-css@master/flags/4x3/",tolower(alpha.2),".svg")) |>
+  arrange(name) |>
+  full_join(countries,by = join_by(alpha.2)) |>
+  mutate(name = coalesce(name.y,name.x)) |>
+  select(-name.x,-name.y) 
+  
+
+
+
+countries_widget <<- multiInput(
+  inputId = "Id010",
+  label = "Countries :", 
+  choices = NULL,
+  choiceNames = lapply(seq_along(countries_df$name), 
+                       function(i) { tagList(tags$img(src = countries_df$svg_url[i],
+                                                      width = 20, 
+                                                      height = 15), countries_df$name[i]) }
+  ),
+  choiceValues = countries_df$name
+)
+
 
