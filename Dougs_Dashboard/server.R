@@ -510,6 +510,10 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color,
   output$daymap <- renderPlotly(
     {
       
+      sel_bbox <- list(xmin = input$mymap_bounds[["west"]], xmax = input$mymap_bounds[["east"]], ymin = input$mymap_bounds[["south"]], ymax = input$mymap_bounds[["north"]])
+      
+      print(sel_bbox)
+      
       #travel_lines <- reload_map_data_nogeom()
       
       filtervs <- rerun_filt()
@@ -532,10 +536,11 @@ from
 end_time_utc - start_time_utc as duration,
 extract('doy' from start_time_utc) as day,
 extract('year' from start_time_utc) as isoyear
-from dougtracks.dougtracks_lines_emi_mv_nogeom
+from dougtracks.dougtracks_lines_emi_mv
 
 where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
+and geom && ST_MakeEnvelope(",sel_bbox['xmin'],",",sel_bbox['ymin'],",",sel_bbox['xmax'],",",sel_bbox['ymax'],",4326)
 
 ) subq
 group by traveltype_superclass,superclass_colourv,day,isoyear")
@@ -593,6 +598,8 @@ group by traveltype_superclass,superclass_colourv,day,isoyear")
     {
       
       #travel_lines <- reload_map_data_nogeom()
+      sel_bbox <- list(xmin = input$mymap_bounds[["west"]], xmax = input$mymap_bounds[["east"]], ymin = input$mymap_bounds[["south"]], ymax = input$mymap_bounds[["north"]])
+      
       
       filtervs <- rerun_filt()
       daterange <- rerun_daterange()
@@ -614,9 +621,10 @@ from
 end_time_utc - start_time_utc as duration,
 extract('week' from start_time_utc) as week,
 extract('isoyear' from start_time_utc) as isoyear
-from dougtracks.dougtracks_lines_emi_mv_nogeom
+from dougtracks.dougtracks_lines_emi_mv
 where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
+and geom && ST_MakeEnvelope(",sel_bbox['xmin'],",",sel_bbox['ymin'],",",sel_bbox['xmax'],",",sel_bbox['ymax'],",4326)
 ) subq
 group by traveltype_superclass,superclass_colourv,week,isoyear")
       
@@ -667,6 +675,7 @@ group by traveltype_superclass,superclass_colourv,week,isoyear")
     {
       
       #travel_lines <- reload_map_data_nogeom()
+      sel_bbox <- list(xmin = input$mymap_bounds[["west"]], xmax = input$mymap_bounds[["east"]], ymin = input$mymap_bounds[["south"]], ymax = input$mymap_bounds[["north"]])
       
       filtervs <- rerun_filt()
       daterange <- rerun_daterange()
@@ -685,9 +694,10 @@ from
 *,
 end_time_utc - start_time_utc as duration,
 extract('month' from start_time_utc) as month
-from dougtracks.dougtracks_lines_emi_mv_nogeom
+from dougtracks.dougtracks_lines_emi_mv
 where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
+and geom && ST_MakeEnvelope(",sel_bbox['xmin'],",",sel_bbox['ymin'],",",sel_bbox['xmax'],",",sel_bbox['ymax'],",4326)
 ) subq
 group by traveltype_superclass,superclass_colourv,month,year")
       
@@ -747,6 +757,7 @@ group by traveltype_superclass,superclass_colourv,month,year")
     {
       
       #travel_lines <- reload_map_data_nogeom()
+      sel_bbox <- list(xmin = input$mymap_bounds[["west"]], xmax = input$mymap_bounds[["east"]], ymin = input$mymap_bounds[["south"]], ymax = input$mymap_bounds[["north"]])
       
       filtervs <- rerun_filt()
       daterange <- rerun_daterange()
@@ -769,9 +780,10 @@ from
 (select 
 *,
 end_time_utc - start_time_utc as duration
-from dougtracks.dougtracks_lines_emi_mv_nogeom
+from dougtracks.dougtracks_lines_emi_mv
 where start_time_utc >= to_date('",daterange[1],"','YYYY-MM-DD') and end_time_utc <= to_date('",daterange[2],"','YYYY-MM-DD')
 and traveltype in (",str_c("'",filtervs,"'",collapse = ","),")
+and geom && ST_MakeEnvelope(",sel_bbox['xmin'],",",sel_bbox['ymin'],",",sel_bbox['xmax'],",",sel_bbox['ymax'],",4326)
 ) subq
 group by traveltype_superclass,superclass_colourv,year")
       
