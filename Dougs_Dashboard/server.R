@@ -302,6 +302,7 @@ group by hillnumber,hillname,feature,classification,metres,feet,drop,geom,color)
           overlayGroups = c("Hills","Tracks"),
           options = layersControlOptions(collapsed = FALSE)
         ) %>%
+	addMeasure(primaryLengthUnit = "meters",secondaryLengthUnit="miles",primaryAreaUnit="hectares") %>%
         fitBounds(map_dta2_bbox[[1]], map_dta2_bbox[[2]], map_dta2_bbox[[3]], map_dta2_bbox[[4]]) %>%
         addFullscreenControl()
       
@@ -901,6 +902,7 @@ group by traveltype_superclass,superclass_colourv,year")
           overlayGroups = c("Tracks"),
           options = layersControlOptions(collapsed = FALSE)
         ) %>%
+	addMeasure(primaryLengthUnit = "meters",secondaryLengthUnit="miles",primaryAreaUnit="hectares") %>%
         addFullscreenControl()
         #
       
